@@ -9,34 +9,161 @@ export type Json =
 export interface Database {
   public: {
     Tables: {
-      users: {
+      profiles: {
         Row: {
           id: string;
-          email: string;
+          full_name: string | null;
+          avatar_url: string | null;
+          preferred_location: string | null;
+          linkedin_url: string | null;
+          github_url: string | null;
           target_role: string | null;
           experience_level: "entry" | "mid" | "senior" | "lead" | null;
-          target_salary_min: number | null;
-          target_salary_max: number | null;
+          target_salary_min: number;
+          target_salary_max: number;
+          deleted_at: string | null;
           created_at: string;
           updated_at: string;
         };
         Insert: {
           id: string;
-          email: string;
+          full_name?: string | null;
+          avatar_url?: string | null;
+          preferred_location?: string | null;
+          linkedin_url?: string | null;
+          github_url?: string | null;
           target_role?: string | null;
           experience_level?: "entry" | "mid" | "senior" | "lead" | null;
-          target_salary_min?: number | null;
-          target_salary_max?: number | null;
+          target_salary_min?: number;
+          target_salary_max?: number;
+          deleted_at?: string | null;
           created_at?: string;
           updated_at?: string;
         };
         Update: {
           id?: string;
-          email?: string;
+          full_name?: string | null;
+          avatar_url?: string | null;
+          preferred_location?: string | null;
+          linkedin_url?: string | null;
+          github_url?: string | null;
           target_role?: string | null;
           experience_level?: "entry" | "mid" | "senior" | "lead" | null;
-          target_salary_min?: number | null;
-          target_salary_max?: number | null;
+          target_salary_min?: number;
+          target_salary_max?: number;
+          deleted_at?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+      };
+      companies: {
+        Row: {
+          id: string;
+          user_id: string;
+          name: string;
+          website: string | null;
+          linkedin_url: string | null;
+          industry: string | null;
+          location: string | null;
+          size: "1-10" | "11-50" | "51-200" | "201-500" | "501-1000" | "1000+" | null;
+          logo_url: string | null;
+          description: string | null;
+          notes: string | null;
+          deleted_at: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          name: string;
+          website?: string | null;
+          linkedin_url?: string | null;
+          industry?: string | null;
+          location?: string | null;
+          size?: "1-10" | "11-50" | "51-200" | "201-500" | "501-1000" | "1000+" | null;
+          logo_url?: string | null;
+          description?: string | null;
+          notes?: string | null;
+          deleted_at?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          name?: string;
+          website?: string | null;
+          linkedin_url?: string | null;
+          industry?: string | null;
+          location?: string | null;
+          size?: "1-10" | "11-50" | "51-200" | "201-500" | "501-1000" | "1000+" | null;
+          logo_url?: string | null;
+          description?: string | null;
+          notes?: string | null;
+          deleted_at?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+      };
+      jobs: {
+        Row: {
+          id: string;
+          user_id: string;
+          company_id: string;
+          title: string;
+          description: string | null;
+          location: string | null;
+          salary_min: number;
+          salary_max: number;
+          priority: "low" | "medium" | "high" | "critical";
+          status: "wishlist" | "applied" | "oa" | "interview" | "hr" | "offer" | "accepted" | "rejected" | "withdrawn";
+          work_mode: "remote" | "hybrid" | "onsite" | null;
+          employment_type: "internship" | "full_time" | "part_time" | "contract" | null;
+          job_url: string | null;
+          applied_at: string | null;
+          deadline: string | null;
+          deleted_at: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          company_id: string;
+          title: string;
+          description?: string | null;
+          location?: string | null;
+          salary_min?: number;
+          salary_max?: number;
+          priority?: "low" | "medium" | "high" | "critical";
+          status?: "wishlist" | "applied" | "oa" | "interview" | "hr" | "offer" | "accepted" | "rejected" | "withdrawn";
+          work_mode?: "remote" | "hybrid" | "onsite" | null;
+          employment_type?: "internship" | "full_time" | "part_time" | "contract" | null;
+          job_url?: string | null;
+          applied_at?: string | null;
+          deadline?: string | null;
+          deleted_at?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          company_id?: string;
+          title?: string;
+          description?: string | null;
+          location?: string | null;
+          salary_min?: number;
+          salary_max?: number;
+          priority?: "low" | "medium" | "high" | "critical";
+          status?: "wishlist" | "applied" | "oa" | "interview" | "hr" | "offer" | "accepted" | "rejected" | "withdrawn";
+          work_mode?: "remote" | "hybrid" | "onsite" | null;
+          employment_type?: "internship" | "full_time" | "part_time" | "contract" | null;
+          job_url?: string | null;
+          applied_at?: string | null;
+          deadline?: string | null;
+          deleted_at?: string | null;
           created_at?: string;
           updated_at?: string;
         };
@@ -46,155 +173,143 @@ export interface Database {
           id: string;
           user_id: string;
           version_name: string;
-          raw_text: string;
+          parsed_text: string;
           structured_data: Json;
           file_path: string;
+          file_name: string;
+          file_type: string;
+          file_size: number;
           ats_score: number | null;
-          is_primary: boolean;
+          is_default: boolean;
+          deleted_at: string | null;
           created_at: string;
+          updated_at: string;
         };
         Insert: {
           id?: string;
           user_id: string;
           version_name?: string;
-          raw_text: string;
+          parsed_text: string;
           structured_data: Json;
           file_path: string;
+          file_name: string;
+          file_type: string;
+          file_size: number;
           ats_score?: number | null;
-          is_primary?: boolean;
+          is_default?: boolean;
+          deleted_at?: string | null;
           created_at?: string;
+          updated_at?: string;
         };
         Update: {
           id?: string;
           user_id?: string;
           version_name?: string;
-          raw_text?: string;
+          parsed_text?: string;
           structured_data?: Json;
           file_path?: string;
+          file_name?: string;
+          file_type?: string;
+          file_size?: number;
           ats_score?: number | null;
-          is_primary?: boolean;
+          is_default?: boolean;
+          deleted_at?: string | null;
           created_at?: string;
+          updated_at?: string;
         };
       };
-      companies: {
-        Row: {
-          id: string;
-          name: string;
-          domain: string | null;
-          logo_url: string | null;
-          description: string | null;
-          industries: string[];
-        };
-        Insert: {
-          id?: string;
-          name: string;
-          domain?: string | null;
-          logo_url?: string | null;
-          description?: string | null;
-          industries?: string[];
-        };
-        Update: {
-          id?: string;
-          name?: string;
-          domain?: string | null;
-          logo_url?: string | null;
-          description?: string | null;
-          industries?: string[];
-        };
-      };
-      jobs: {
-        Row: {
-          id: string;
-          company_id: string;
-          title: string;
-          description: string;
-          location: string;
-          salary_min: number | null;
-          salary_max: number | null;
-          required_skills: string[];
-          embedding: string | null; // Vector is serialized as string in generic JS clients
-          source_url: string | null;
-          created_at: string;
-        };
-        Insert: {
-          id?: string;
-          company_id: string;
-          title: string;
-          description: string;
-          location: string;
-          salary_min?: number | null;
-          salary_max?: number | null;
-          required_skills?: string[];
-          embedding?: string | null;
-          source_url?: string | null;
-          created_at?: string;
-        };
-        Update: {
-          id?: string;
-          company_id?: string;
-          title?: string;
-          description?: string;
-          location?: string;
-          salary_min?: number | null;
-          salary_max?: number | null;
-          required_skills?: string[];
-          embedding?: string | null;
-          source_url?: string | null;
-          created_at?: string;
-        };
-      };
-      applications: {
+      notes: {
         Row: {
           id: string;
           user_id: string;
           job_id: string;
-          resume_id: string | null;
-          status: "bookmarked" | "applied" | "interviewing" | "offer_received" | "rejected";
-          match_rate: number | null;
-          applied_at: string | null;
+          content: string;
+          deleted_at: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          job_id: string;
+          content: string;
+          deleted_at?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          job_id?: string;
+          content?: string;
+          deleted_at?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+      };
+      application_history: {
+        Row: {
+          id: string;
+          user_id: string;
+          job_id: string;
+          changed_by: string;
+          from_status: "wishlist" | "applied" | "oa" | "interview" | "hr" | "offer" | "accepted" | "rejected" | "withdrawn";
+          to_status: "wishlist" | "applied" | "oa" | "interview" | "hr" | "offer" | "accepted" | "rejected" | "withdrawn";
+          note: string | null;
           created_at: string;
         };
         Insert: {
           id?: string;
           user_id: string;
           job_id: string;
-          resume_id?: string | null;
-          status: "bookmarked" | "applied" | "interviewing" | "offer_received" | "rejected";
-          match_rate?: number | null;
-          applied_at?: string | null;
+          changed_by: string;
+          from_status: "wishlist" | "applied" | "oa" | "interview" | "hr" | "offer" | "accepted" | "rejected" | "withdrawn";
+          to_status: "wishlist" | "applied" | "oa" | "interview" | "hr" | "offer" | "accepted" | "rejected" | "withdrawn";
+          note?: string | null;
           created_at?: string;
         };
         Update: {
           id?: string;
           user_id?: string;
           job_id?: string;
-          resume_id?: string | null;
-          status?: "bookmarked" | "applied" | "interviewing" | "offer_received" | "rejected";
-          match_rate?: number | null;
-          applied_at?: string | null;
+          changed_by?: string;
+          from_status?: "wishlist" | "applied" | "oa" | "interview" | "hr" | "offer" | "accepted" | "rejected" | "withdrawn";
+          to_status?: "wishlist" | "applied" | "oa" | "interview" | "hr" | "offer" | "accepted" | "rejected" | "withdrawn";
+          note?: string | null;
           created_at?: string;
         };
       };
-      application_logs: {
+      job_tags: {
         Row: {
           id: string;
-          application_id: string;
-          event_type: string;
-          payload: Json;
+          name: string;
           created_at: string;
         };
         Insert: {
           id?: string;
-          application_id: string;
-          event_type: string;
-          payload: Json;
+          name: string;
           created_at?: string;
         };
         Update: {
           id?: string;
-          application_id?: string;
-          event_type?: string;
-          payload?: Json;
+          name?: string;
+          created_at?: string;
+        };
+      };
+      job_tag_map: {
+        Row: {
+          job_id: string;
+          tag_id: string;
+          created_at: string;
+        };
+        Insert: {
+          job_id: string;
+          tag_id: string;
+          created_at?: string;
+        };
+        Update: {
+          job_id?: string;
+          tag_id?: string;
           created_at?: string;
         };
       };
