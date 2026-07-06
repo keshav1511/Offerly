@@ -11,7 +11,7 @@ port = 54322
 shadow_port = 54323
 
 [studio]
-port = 54324
+port = 54330
 
 [auth]
 site_url = "http://localhost:3000"

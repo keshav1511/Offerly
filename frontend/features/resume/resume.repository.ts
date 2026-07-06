@@ -87,10 +87,9 @@ export class ResumeRepository {
         file_name: file.name,
         file_type: file.type,
         file_size: file.size,
-        storage_path: storagePath,
+        file_path: storagePath,
         is_default: isDefault,
-        parsed_text: null,
-        structured_data: null,
+        parsed_text: "",
         ats_score: null,
       })
       .select()
@@ -160,10 +159,10 @@ export class ResumeRepository {
   async deleteResume(id: string): Promise<void> {
     const userId = await this.getCurrentUserId();
 
-    // 1. Fetch resume to see if it is default and get storage path
+    // 1. Fetch resume to see if it is default and get file path
     const { data: resume, error: fetchError } = await this.client
       .from('resumes')
-      .select('is_default, storage_path')
+      .select('is_default, file_path')
       .eq('id', id)
       .eq('user_id', userId)
       .is('deleted_at', null)
@@ -186,8 +185,8 @@ export class ResumeRepository {
     }
 
     // 3. Delete from storage
-    if (resume.storage_path) {
-      await this.client.storage.from('resumes').remove([resume.storage_path]);
+    if (resume.file_path) {
+      await this.client.storage.from('resumes').remove([resume.file_path]);
     }
 
     // 4. If we deleted the default resume, automatically assign default to the most recent remaining resume
