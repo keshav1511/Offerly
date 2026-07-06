@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { companyRepository } from "../company.repository";
-import { CompanyFilters, CompanyRow } from "../company.types";
+import { CompanyFilters } from "../company.types";
 import { CreateCompanyInput, UpdateCompanyInput } from "../company.validation";
 
 /**

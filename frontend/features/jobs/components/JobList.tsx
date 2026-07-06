@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { Search, SlidersHorizontal, ChevronLeft, ChevronRight, Plus } from "lucide-react";
-import { JobWithCompany } from "../job.types";
+import { JobWithCompany, JobRow } from "../job.types";
 import { useJobs } from "../hooks/useJobs";
 import { JobCard } from "./JobCard";
 import { JobSkeleton } from "./JobSkeleton";
@@ -41,9 +41,9 @@ export function JobList({ onEdit, onDelete, onCreateClick }: JobListProps) {
     page,
     pageSize: pageSize + 1, // Fetch one extra element to check next page existence
     search: debouncedSearch.trim() || undefined,
-    status: status !== "all" ? (status as any) : undefined,
-    priority: priority !== "all" ? (priority as any) : undefined,
-    work_mode: workMode !== "all" ? (workMode as any) : undefined,
+    status: status !== "all" ? (status as JobRow['status']) : undefined,
+    priority: priority !== "all" ? (priority as JobRow['priority']) : undefined,
+    work_mode: workMode !== "all" ? (workMode as JobRow['work_mode']) : undefined,
   };
 
   // Consume TanStack queries

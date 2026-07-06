@@ -31,11 +31,11 @@ export class JobRepository {
   /**
    * Clean empty strings to null before writing to DB columns.
    */
-  private sanitizeInput<T extends Record<string, any>>(input: T): T {
+  private sanitizeInput<T extends Record<string, unknown>>(input: T): T {
     const cleaned = { ...input };
     for (const key in cleaned) {
       if (cleaned[key] === '') {
-        cleaned[key] = null as any;
+        cleaned[key] = null as unknown as T[Extract<keyof T, string>];
       }
     }
     return cleaned;
@@ -112,7 +112,7 @@ export class JobRepository {
       throw new Error(`Failed to retrieve jobs: ${error.message}`);
     }
 
-    return (data as any) || [];
+    return (data as unknown as JobWithCompany[]) || [];
   }
 
   /**
@@ -132,7 +132,7 @@ export class JobRepository {
       throw new Error(`Failed to retrieve job details: ${error.message}`);
     }
 
-    return data as any;
+    return data as unknown as JobWithCompany | null;
   }
 
   /**

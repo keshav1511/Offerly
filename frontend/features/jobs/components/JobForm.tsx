@@ -5,7 +5,7 @@ import { createJobSchema, CreateJobInput } from "../job.validation";
 import { JobRow } from "../job.types";
 import { useCompanies } from "@/features/companies/hooks/useCompanies";
 import { Button } from "@/components/Button";
-import { Search, ChevronDown, Check } from "lucide-react";
+import { ChevronDown, Check } from "lucide-react";
 import { formatDateForInput } from "@/utils/date";
 
 interface JobFormProps {
@@ -22,10 +22,8 @@ export function JobForm({ initialData, onSubmit, onCancel, isLoading }: JobFormP
   // 1. Load companies dynamically using TanStack Query
   const { companies } = useCompanies();
 
-  // Searchable Dropdown States
   const [companySearch, setCompanySearch] = useState("");
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const [selectedCompanyName, setSelectedCompanyName] = useState("");
 
   // Initialize form with Zod schema validation
   const {
@@ -60,7 +58,6 @@ export function JobForm({ initialData, onSubmit, onCancel, isLoading }: JobFormP
     if (initialData?.company_id && companies.length > 0) {
       const match = companies.find((c) => c.id === initialData.company_id);
       if (match) {
-        setSelectedCompanyName(match.name);
         setCompanySearch(match.name);
       }
     }
@@ -84,7 +81,6 @@ export function JobForm({ initialData, onSubmit, onCancel, isLoading }: JobFormP
 
   const handleSelectCompany = (id: string, name: string) => {
     setValue("company_id", id, { shouldValidate: true });
-    setSelectedCompanyName(name);
     setCompanySearch(name);
     setIsDropdownOpen(false);
   };

@@ -16,7 +16,7 @@ export function EmptyState({ onCreateClick }: EmptyStateProps) {
         No Companies Found
       </h3>
       <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-2 mb-6 max-w-sm">
-        You are not tracking any companies yet. Start adding the organizations you're targeting or interviewing with.
+        You are not tracking any companies yet. Start adding the organizations you&apos;re targeting or interviewing with.
       </p>
       {onCreateClick && (
         <Button onClick={onCreateClick} variant="outline" size="sm" className="font-mono text-xs uppercase tracking-wider gap-1.5">

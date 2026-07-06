@@ -65,7 +65,7 @@ export function OtpVerificationScreen({ email = "user@example.com", onBack, onCo
 
     try {
       // Primary verification: type signup
-      let { data, error } = await supabase.auth.verifyOtp({
+      let { error } = await supabase.auth.verifyOtp({
         email,
         token,
         type: "signup",
@@ -79,7 +79,6 @@ export function OtpVerificationScreen({ email = "user@example.com", onBack, onCo
           type: "email",
         });
         if (!fallback.error) {
-          data = fallback.data;
           error = null;
         } else {
           error = fallback.error;

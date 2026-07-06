@@ -32,11 +32,11 @@ export class CompanyRepository {
   /**
    * Clean empty strings to null before writing to DB columns.
    */
-  private sanitizeInput<T extends Record<string, any>>(input: T): T {
+  private sanitizeInput<T extends Record<string, unknown>>(input: T): T {
     const cleaned = { ...input };
     for (const key in cleaned) {
       if (cleaned[key] === '') {
-        cleaned[key] = null as any;
+        cleaned[key] = null as unknown as T[Extract<keyof T, string>];
       }
     }
     return cleaned;

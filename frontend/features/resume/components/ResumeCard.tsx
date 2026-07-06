@@ -1,5 +1,5 @@
 import React from "react";
-import { FileText, Trash2, Edit2, CheckCircle2, Star, Calendar } from "lucide-react";
+import { FileText, Trash2, Edit2, Star, Calendar } from "lucide-react";
 import { ResumeRow } from "../resume.types";
 import { Card } from "@/components/Card";
 import { Button } from "@/components/Button";

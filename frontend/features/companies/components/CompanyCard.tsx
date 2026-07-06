@@ -1,5 +1,5 @@
 import React from "react";
-import { Building2, Link2, MapPin, Edit2, Trash2, Globe } from "lucide-react";
+import { MapPin, Edit2, Trash2, Globe } from "lucide-react";
 import { CompanyRow } from "../company.types";
 import { Card } from "@/components/Card";
 import { Button } from "@/components/Button";
@@ -30,6 +30,7 @@ export function CompanyCard({ company, onEdit, onDelete }: CompanyCardProps) {
         <div className="flex items-start justify-between gap-3">
           <div className="flex items-center gap-3.5 min-w-0">
             {company.logo_url ? (
+              /* eslint-disable-next-line @next/next/no-img-element -- Dynamic company logo URLs are supplied by users from arbitrary external domains, making next/image domain configuration infeasible. */
               <img
                 src={company.logo_url}
                 alt={`${company.name} logo`}

@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { jobRepository } from "../job.repository";
-import { JobFilters, JobRow } from "../job.types";
+import { JobFilters } from "../job.types";
 import { CreateJobInput, UpdateJobInput } from "../job.validation";
 
 /**

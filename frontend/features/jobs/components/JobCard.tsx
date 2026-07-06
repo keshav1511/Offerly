@@ -1,5 +1,5 @@
 import React from "react";
-import { Briefcase, MapPin, Edit2, Trash2, Globe, Calendar, DollarSign, ExternalLink } from "lucide-react";
+import { MapPin, Edit2, Trash2, DollarSign, ExternalLink } from "lucide-react";
 import { JobWithCompany } from "../job.types";
 import { Card } from "@/components/Card";
 import { Button } from "@/components/Button";
@@ -52,6 +52,7 @@ export function JobCard({ job, onEdit, onDelete }: JobCardProps) {
         <div className="flex items-start justify-between gap-3">
           <div className="flex items-center gap-3.5 min-w-0">
             {job.company?.logo_url ? (
+              /* eslint-disable-next-line @next/next/no-img-element -- Dynamic company logo URLs are supplied by users from arbitrary external domains, making next/image domain configuration infeasible. */
               <img
                 src={job.company.logo_url}
                 alt={`${job.company.name} logo`}

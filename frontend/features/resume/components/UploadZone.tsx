@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useRef } from "react";
-import { UploadCloud, FileText, X, CheckCircle, AlertCircle } from "lucide-react";
+import { UploadCloud, FileText, X, AlertCircle } from "lucide-react";
 import { ALLOWED_FILE_TYPES, MAX_FILE_SIZE_BYTES } from "../resume.validation";
 import { Button } from "@/components/Button";
 
@@ -8,6 +8,14 @@ interface UploadZoneProps {
   isLoading?: boolean;
 }
 
+// Helper to extract a friendly version name from file names
+const getCleanVersionName = (fileName: string) => {
+  return fileName
+    .replace(/\.[^/.]+$/, "") // Strip extension
+    .replace(/[-_]/g, " ") // Replace dashes/underscores with spaces
+    .trim();
+};
+
 export function UploadZone({ onUpload, isLoading }: UploadZoneProps) {
   const [dragActive, setDragActive] = useState(false);
   const [file, setFile] = useState<File | null>(null);
@@ -15,15 +23,7 @@ export function UploadZone({ onUpload, isLoading }: UploadZoneProps) {
   const [error, setError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Helper to extract a friendly version name from file names
-  const getCleanVersionName = (fileName: string) => {
-    return fileName
-      .replace(/\.[^/.]+$/, "") // Strip extension
-      .replace(/[-_]/g, " ") // Replace dashes/underscores with spaces
-      .trim();
-  };
-
-  const validateAndSetFile = (selectedFile: File) => {
+  const validateAndSetFile = useCallback((selectedFile: File) => {
     setError(null);
 
     if (!ALLOWED_FILE_TYPES.includes(selectedFile.type)) {
@@ -38,7 +38,7 @@ export function UploadZone({ onUpload, isLoading }: UploadZoneProps) {
 
     setFile(selectedFile);
     setVersionName(getCleanVersionName(selectedFile.name));
-  };
+  }, []);
 
   const handleDrag = useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -58,7 +58,7 @@ export function UploadZone({ onUpload, isLoading }: UploadZoneProps) {
     if (e.dataTransfer.files && e.dataTransfer.files[0]) {
       validateAndSetFile(e.dataTransfer.files[0]);
     }
-  }, []);
+  }, [validateAndSetFile]);
 
   const handleFileInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
