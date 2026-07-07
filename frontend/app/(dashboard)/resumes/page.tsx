@@ -22,6 +22,8 @@ export default function ResumesPage() {
     isDeleting,
     setDefaultResume,
     isSettingDefault,
+    parseResume,
+    isParsing,
   } = useResumes();
 
   // Modal / Form States
@@ -51,6 +53,17 @@ export default function ResumesPage() {
       toast(`"${resume.version_name}" is now set as your default resume.`, "success");
     } catch (err) {
       toast(err instanceof Error ? err.message : "Failed to update default resume.", "error");
+    }
+  };
+
+  // Parse handler
+  const handleParse = async (resume: ResumeRow, force: boolean = false) => {
+    try {
+      toast(`Parsing started for resume "${resume.version_name}"...`, "info");
+      await parseResume({ id: resume.id, force });
+      toast(`Resume "${resume.version_name}" parsed successfully.`, "success");
+    } catch (err) {
+      toast(err instanceof Error ? err.message : "Failed to parse resume.", "error");
     }
   };
 
@@ -92,7 +105,8 @@ export default function ResumesPage() {
           onRename={setRenameTarget}
           onDelete={setDeleteTarget}
           onSetDefault={handleSetDefault}
-          isActionLoading={isUpdating || isDeleting || isSettingDefault}
+          onParse={handleParse}
+          isActionLoading={isUpdating || isDeleting || isSettingDefault || isParsing}
         />
       </div>
 

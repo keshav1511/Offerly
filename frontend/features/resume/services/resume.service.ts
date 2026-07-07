@@ -131,6 +131,32 @@ export class ResumeService {
   }
 
   /**
+   * Triggers background parsing of the target resume document.
+   */
+  async parseResume(id: string, force: boolean = false): Promise<ResumeRow> {
+    if (!id) {
+      throw new Error("Resume ID is required.");
+    }
+    try {
+      const response = await fetch("/api/resumes/parse", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ resumeId: id, force }),
+      });
+
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to parse resume.");
+      }
+      return data as ResumeRow;
+    } catch (error) {
+      throw new Error(this.normalizeError(error));
+    }
+  }
+
+  /**
    * Normalizes technical exceptions into customer-friendly notifications.
    */
   private normalizeError(error: unknown): string {

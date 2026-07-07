@@ -49,13 +49,18 @@ export function useResumeUpload() {
       const storagePath = await control.promise;
       
       // 2. Await database metadata sync
-      await resumeService.saveResumeMetadata(storagePath, versionName, file);
+      const newResume = await resumeService.saveResumeMetadata(storagePath, versionName, file);
 
       setStatus("success");
       setProgress(100);
       
       // 3. Invalidate TanStack cache to sync list view
       queryClient.invalidateQueries({ queryKey: ["resumes"] });
+
+      // 4. Automatically trigger parsing in background
+      resumeService.parseResume(newResume.id, false).catch((err) => {
+        console.error("[useResumeUpload] Auto-parsing background task failed:", err);
+      });
     } catch (err) {
       // Ensure we don't overwrite user cancellation with an error status
       if (err instanceof Error && err.message.includes("aborted")) {

@@ -43,6 +43,15 @@ export function useResumes(filters?: ResumeFilters) {
     },
   });
 
+  // 6. Parse Resume Mutation
+  const parseMutation = useMutation({
+    mutationFn: ({ id, force }: { id: string; force?: boolean }) =>
+      resumeService.parseResume(id, force),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["resumes"] });
+    },
+  });
+
   return {
     resumes: resumesQuery.data || [],
     isLoading: resumesQuery.isLoading,
@@ -55,5 +64,7 @@ export function useResumes(filters?: ResumeFilters) {
     isDeleting: deleteMutation.isPending,
     setDefaultResume: setDefaultMutation.mutateAsync,
     isSettingDefault: setDefaultMutation.isPending,
+    parseResume: parseMutation.mutateAsync,
+    isParsing: parseMutation.isPending,
   };
 }

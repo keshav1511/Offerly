@@ -13,6 +13,7 @@ interface ResumeListProps {
   onRename?: (resume: ResumeRow) => void;
   onDelete?: (resume: ResumeRow) => void;
   onSetDefault?: (resume: ResumeRow) => void;
+  onParse?: (resume: ResumeRow, force?: boolean) => void;
   isActionLoading?: boolean;
 }
 
@@ -20,6 +21,7 @@ export function ResumeList({
   onRename,
   onDelete,
   onSetDefault,
+  onParse,
   isActionLoading,
 }: ResumeListProps) {
   const [page, setPage] = useState<number>(1);
@@ -66,6 +68,7 @@ export function ResumeList({
                 onRename={onRename}
                 onDelete={onDelete}
                 onSetDefault={onSetDefault}
+                onParse={onParse}
                 isActionLoading={isActionLoading}
               />
             ))}
