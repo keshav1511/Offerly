@@ -1,7 +1,7 @@
 import { useState, useCallback, useRef } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { resumeUploadService, UploadControl } from "../services/resumeUpload.service";
-import { resumeRepository } from "../resume.repository";
+import { resumeService } from "../services/resume.service";
 
 export type UploadStatus = "idle" | "uploading" | "success" | "error";
 
@@ -49,7 +49,7 @@ export function useResumeUpload() {
       const storagePath = await control.promise;
       
       // 2. Await database metadata sync
-      await resumeRepository.saveResumeMetadata(storagePath, versionName, file);
+      await resumeService.saveResumeMetadata(storagePath, versionName, file);
 
       setStatus("success");
       setProgress(100);

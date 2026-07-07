@@ -38,7 +38,7 @@ export function ResumeCard({
             </div>
             <div className="min-w-0">
               <div className="flex items-center gap-2 min-w-0">
-                <h3 className="font-mono text-xs uppercase tracking-wider font-bold text-zinc-900 dark:text-zinc-50 truncate group-hover:text-black dark:group-hover:text-white">
+                <h3 className="font-mono text-xs tracking-wider font-bold text-zinc-900 dark:text-zinc-50 truncate group-hover:text-black dark:group-hover:text-white">
                   {resume.version_name}
                 </h3>
                 {resume.is_default && (

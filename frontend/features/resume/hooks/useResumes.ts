@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { resumeRepository } from "../resume.repository";
+import { resumeService } from "../services/resume.service";
 import { ResumeFilters, ResumeRow } from "../resume.types";
 
 /**
@@ -11,14 +11,16 @@ export function useResumes(filters?: ResumeFilters) {
   // 1. Fetch Resumes Query
   const resumesQuery = useQuery({
     queryKey: ["resumes", filters],
-    queryFn: () => resumeRepository.getResumes(filters),
+    queryFn: () => resumeService.getUserResumes(filters),
     enabled: typeof window !== "undefined",
   });
 
   // 3. Update Resume Mutation (rename version)
   const updateMutation = useMutation({
-    mutationFn: ({ id, updates }: { id: string; updates: Partial<ResumeRow> }) =>
-      resumeRepository.updateResume(id, updates),
+    mutationFn: ({ id, updates }: { id: string; updates: Partial<ResumeRow> }) => {
+      const versionName = updates.version_name ?? "";
+      return resumeService.renameResume(id, versionName);
+    },
     onSuccess: (updatedResume) => {
       queryClient.invalidateQueries({ queryKey: ["resumes"] });
       queryClient.invalidateQueries({ queryKey: ["resume", updatedResume.id] });
@@ -27,7 +29,7 @@ export function useResumes(filters?: ResumeFilters) {
 
   // 4. Soft Delete Resume Mutation
   const deleteMutation = useMutation({
-    mutationFn: (id: string) => resumeRepository.deleteResume(id),
+    mutationFn: (id: string) => resumeService.deleteResume(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["resumes"] });
     },
@@ -35,7 +37,7 @@ export function useResumes(filters?: ResumeFilters) {
 
   // 5. Set Default Resume Mutation
   const setDefaultMutation = useMutation({
-    mutationFn: (id: string) => resumeRepository.setDefaultResume(id),
+    mutationFn: (id: string) => resumeService.setDefaultResume(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["resumes"] });
     },

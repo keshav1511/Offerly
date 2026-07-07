@@ -133,6 +133,26 @@ export class ResumeRepository {
   }
 
   /**
+   * Retrieves a single active resume by its ID.
+   */
+  async getResumeById(id: string): Promise<ResumeRow> {
+    const userId = await this.getCurrentUserId();
+    const { data, error } = await this.client
+      .from('resumes')
+      .select('*')
+      .eq('id', id)
+      .eq('user_id', userId)
+      .is('deleted_at', null)
+      .single();
+
+    if (error) {
+      throw new Error(`Failed to retrieve resume: ${error.message}`);
+    }
+
+    return data;
+  }
+
+  /**
    * Updates metadata of a resume (e.g. rename version_name).
    */
   async updateResume(id: string, updates: Partial<ResumeRow>): Promise<ResumeRow> {
