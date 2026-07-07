@@ -13,6 +13,7 @@ export function useJobs(filters?: JobFilters) {
   const jobsQuery = useQuery({
     queryKey: ["jobs", filters],
     queryFn: () => jobRepository.getJobs(filters),
+    enabled: typeof window !== "undefined",
   });
 
   // 2. Create Job Mutation

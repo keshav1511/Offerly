@@ -12,15 +12,7 @@ export function useResumes(filters?: ResumeFilters) {
   const resumesQuery = useQuery({
     queryKey: ["resumes", filters],
     queryFn: () => resumeRepository.getResumes(filters),
-  });
-
-  // 2. Upload Resume Mutation
-  const uploadMutation = useMutation({
-    mutationFn: ({ file, versionName }: { file: File; versionName: string }) =>
-      resumeRepository.uploadResume(file, versionName),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["resumes"] });
-    },
+    enabled: typeof window !== "undefined",
   });
 
   // 3. Update Resume Mutation (rename version)
@@ -55,8 +47,6 @@ export function useResumes(filters?: ResumeFilters) {
     isError: resumesQuery.isError,
     error: resumesQuery.error,
     refetch: resumesQuery.refetch,
-    uploadResume: uploadMutation.mutateAsync,
-    isUploading: uploadMutation.isPending,
     updateResume: updateMutation.mutateAsync,
     isUpdating: updateMutation.isPending,
     deleteResume: deleteMutation.mutateAsync,

@@ -16,8 +16,6 @@ export default function ResumesPage() {
 
   // Consume resumes queries & mutations
   const {
-    uploadResume,
-    isUploading,
     updateResume,
     isUpdating,
     deleteResume,
@@ -30,16 +28,6 @@ export default function ResumesPage() {
   const [renameTarget, setRenameTarget] = useState<ResumeRow | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<ResumeRow | null>(null);
 
-  // Upload handler
-  const handleUpload = async (file: File, versionName: string) => {
-    try {
-      await uploadResume({ file, versionName });
-      toast(`Resume version "${versionName}" uploaded successfully.`, "success");
-    } catch (err) {
-      toast(err instanceof Error ? err.message : "Failed to upload resume file.", "error");
-      throw err; // Re-throw to show error state in UploadZone
-    }
-  };
 
   // Rename handler
   const handleRename = async (data: { version_name: string }) => {
@@ -91,7 +79,7 @@ export default function ResumesPage() {
         />
 
         {/* Upload Zone */}
-        <UploadZone onUpload={handleUpload} isLoading={isUploading} />
+        <UploadZone />
       </div>
 
       <div className="space-y-4">
@@ -104,7 +92,7 @@ export default function ResumesPage() {
           onRename={setRenameTarget}
           onDelete={setDeleteTarget}
           onSetDefault={handleSetDefault}
-          isActionLoading={isUploading || isUpdating || isDeleting || isSettingDefault}
+          isActionLoading={isUpdating || isDeleting || isSettingDefault}
         />
       </div>
 

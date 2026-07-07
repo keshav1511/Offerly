@@ -13,6 +13,7 @@ export function useCompanies(filters?: CompanyFilters) {
   const companiesQuery = useQuery({
     queryKey: ["companies", filters],
     queryFn: () => companyRepository.getCompanies(filters),
+    enabled: typeof window !== "undefined",
   });
 
   // 2. Create Company Mutation

@@ -238,5 +238,53 @@ export class ResumeRepository {
       throw new Error(`Failed to set default resume: ${setErrors.message}`);
     }
   }
+
+  /**
+   * Persists resume metadata in public.resumes table after successful upload.
+   */
+  async saveResumeMetadata(
+    storagePath: string,
+    versionName: string,
+    file: File
+  ): Promise<ResumeRow> {
+    const userId = await this.getCurrentUserId();
+
+    // Check if user already has a default resume. If not, make this one default!
+    const { data: existingDefault, error: checkError } = await this.client
+      .from('resumes')
+      .select('id')
+      .eq('user_id', userId)
+      .eq('is_default', true)
+      .is('deleted_at', null)
+      .maybeSingle();
+
+    if (checkError) {
+      throw new Error(`Failed to check default resume: ${checkError.message}`);
+    }
+
+    const isDefault = !existingDefault;
+
+    const { data, error: insertError } = await this.client
+      .from('resumes')
+      .insert({
+        user_id: userId,
+        version_name: versionName,
+        file_name: file.name,
+        file_type: file.type,
+        file_size: file.size,
+        file_path: storagePath,
+        is_default: isDefault,
+        parsed_text: "",
+        ats_score: null,
+      })
+      .select()
+      .single();
+
+    if (insertError) {
+      throw new Error(`Failed to save resume record: ${insertError.message}`);
+    }
+
+    return data;
+  }
 }
 export const resumeRepository = new ResumeRepository();

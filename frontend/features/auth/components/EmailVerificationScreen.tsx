@@ -51,10 +51,12 @@ export function EmailVerificationScreen({ onBack, onContinue }: EmailVerificatio
 
     try {
       // Trigger Supabase OTP send
+      const redirectTo = `${window.location.origin}/auth/callback?next=/resumes`;
       const { error: authError } = await supabase.auth.signInWithOtp({
         email,
         options: {
           shouldCreateUser: true,
+          emailRedirectTo: redirectTo,
         }
       });
 
