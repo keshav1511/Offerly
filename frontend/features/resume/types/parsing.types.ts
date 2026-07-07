@@ -1,44 +1,56 @@
+export interface PersonalInfo {
+  name: string;
+  email: string;
+  phone: string;
+  location: string;
+}
+
+export interface EducationItem {
+  institution: string;
+  degree: string;
+  field_of_study: string;
+  start_date: string;
+  end_date: string;
+}
+
+export interface ExperienceItem {
+  company: string;
+  position: string;
+  location: string;
+  start_date: string;
+  end_date: string;
+  description: string;
+}
+
+export interface ProjectItem {
+  name: string;
+  description: string;
+  url: string;
+}
+
+export interface ResumeLinks {
+  github: string;
+  linkedin: string;
+  portfolio: string;
+}
+
+export interface ResumeMetadata {
+  pageCount: number;
+  wordCount: number;
+}
+
 export interface ResumeStructuredData {
-  personal: {
-    name: string;
-    email: string;
-    phone: string;
-    location: string;
-  };
+  personal: PersonalInfo;
   summary: string;
   skills: string[];
-  education: Array<{
-    institution: string;
-    degree: string;
-    field_of_study: string;
-    start_date: string;
-    end_date: string;
-  }>;
-  experience: Array<{
-    company: string;
-    position: string;
-    location: string;
-    start_date: string;
-    end_date: string;
-    description: string;
-  }>;
-  projects: Array<{
-    name: string;
-    description: string;
-    url: string;
-  }>;
+  education: EducationItem[];
+  experience: ExperienceItem[];
+  projects: ProjectItem[];
   certifications: string[];
   achievements: string[];
   languages: string[];
-  links: {
-    github: string;
-    linkedin: string;
-    portfolio: string;
-  };
-  metadata: {
-    pageCount: number;
-    wordCount: number;
-  };
+  links: ResumeLinks;
+  metadata: ResumeMetadata;
 }
 
 export interface ResumeParsingProvider {

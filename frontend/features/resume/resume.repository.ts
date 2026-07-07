@@ -306,5 +306,48 @@ export class ResumeRepository {
 
     return data;
   }
+
+  /**
+   * Retrieves the structured_data column for a specific resume.
+   */
+  async getStructuredResume(resumeId: string): Promise<Record<string, unknown>> {
+    const userId = await this.getCurrentUserId();
+    const { data, error } = await this.client
+      .from("resumes")
+      .select("structured_data")
+      .eq("id", resumeId)
+      .eq("user_id", userId)
+      .is("deleted_at", null)
+      .single();
+
+    if (error) {
+      throw new Error(`Failed to retrieve structured resume: ${error.message}`);
+    }
+
+    return (data?.structured_data as Record<string, unknown>) || {};
+  }
+
+  /**
+   * Updates ONLY the structured_data column for a specific resume.
+   */
+  async updateStructuredResume(resumeId: string, structuredData: Record<string, unknown>): Promise<ResumeRow> {
+    const userId = await this.getCurrentUserId();
+    const { data, error } = await this.client
+      .from("resumes")
+      .update({
+        structured_data: structuredData,
+      })
+      .eq("id", resumeId)
+      .eq("user_id", userId)
+      .is("deleted_at", null)
+      .select()
+      .single();
+
+    if (error) {
+      throw new Error(`Failed to update structured resume: ${error.message}`);
+    }
+
+    return data;
+  }
 }
 export const resumeRepository = new ResumeRepository();

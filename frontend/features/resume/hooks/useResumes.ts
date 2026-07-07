@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { resumeService } from "../services/resume.service";
 import { ResumeFilters, ResumeRow } from "../resume.types";
+import { ResumeStructuredData } from "../types/parsing.types";
 
 /**
  * Hook for managing resumes data and cache via TanStack Query.
@@ -67,4 +68,59 @@ export function useResumes(filters?: ResumeFilters) {
     parseResume: parseMutation.mutateAsync,
     isParsing: parseMutation.isPending,
   };
+}
+
+/**
+ * Hook for loading single resume metadata.
+ */
+export function useResume(id: string) {
+  return useQuery({
+    queryKey: ["resume", id],
+    queryFn: () => resumeService.getResumeById(id),
+    enabled: typeof window !== "undefined" && !!id,
+  });
+}
+
+/**
+ * Hook for loading structured resume data.
+ */
+export function useStructuredResume(resumeId: string) {
+  return useQuery({
+    queryKey: ["structured-resume", resumeId],
+    queryFn: () => resumeService.getStructuredResume(resumeId),
+    enabled: typeof window !== "undefined" && !!resumeId,
+  });
+}
+
+/**
+ * Hook for updating structured resume data with optimistic updates.
+ */
+export function useUpdateStructuredResume(resumeId: string) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (structuredData: ResumeStructuredData) =>
+      resumeService.updateStructuredResume(resumeId, structuredData),
+    onMutate: async (newStructuredData) => {
+      await queryClient.cancelQueries({ queryKey: ["structured-resume", resumeId] });
+      const previousStructuredData = queryClient.getQueryData<ResumeStructuredData>([
+        "structured-resume",
+        resumeId,
+      ]);
+      queryClient.setQueryData(["structured-resume", resumeId], newStructuredData);
+      return { previousStructuredData };
+    },
+    onError: (err, newStructuredData, context) => {
+      if (context?.previousStructuredData) {
+        queryClient.setQueryData(
+          ["structured-resume", resumeId],
+          context.previousStructuredData
+        );
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["structured-resume", resumeId] });
+      queryClient.invalidateQueries({ queryKey: ["resumes"] });
+    },
+  });
 }

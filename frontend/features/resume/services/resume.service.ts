@@ -1,5 +1,6 @@
 import { resumeRepository } from "../resume.repository";
 import { ResumeRow, ResumeFilters } from "../resume.types";
+import { ResumeStructuredData } from "../types/parsing.types";
 
 export class ResumeService {
   /**
@@ -151,6 +152,158 @@ export class ResumeService {
         throw new Error(data.error || "Failed to parse resume.");
       }
       return data as ResumeRow;
+    } catch (error) {
+      throw new Error(this.normalizeError(error));
+    }
+  }
+
+  /**
+   * Helper to normalize a URL input (prefixes with https:// if protocol is missing)
+   */
+  normalizeUrl(url: string): string {
+    const trimmed = (url || "").trim();
+    if (!trimmed) return "";
+    if (/^https?:\/\//i.test(trimmed)) {
+      return trimmed;
+    }
+    return `https://${trimmed}`;
+  }
+
+  /**
+   * Helper to ensure the structured_data conforms exactly to the required JSON schema
+   */
+  ensureSchemaConformance(
+    data: Partial<ResumeStructuredData> | null | undefined
+  ): ResumeStructuredData {
+    const d = data || {};
+    
+    // Normalize links
+    const links = {
+      github: this.normalizeUrl(d.links?.github || ""),
+      linkedin: this.normalizeUrl(d.links?.linkedin || ""),
+      portfolio: this.normalizeUrl(d.links?.portfolio || ""),
+    };
+
+    // Filter duplicate skills case-insensitively
+    const rawSkills = Array.isArray(d.skills) ? d.skills : [];
+    const uniqueSkillsSet = new Set<string>();
+    const skills: string[] = [];
+    for (const skill of rawSkills) {
+      const cleanSkill = (skill || "").trim();
+      if (cleanSkill) {
+        const lower = cleanSkill.toLowerCase();
+        if (!uniqueSkillsSet.has(lower)) {
+          uniqueSkillsSet.add(lower);
+          skills.push(cleanSkill);
+        }
+      }
+    }
+
+    return {
+      personal: {
+        name: (d.personal?.name || "").trim(),
+        email: (d.personal?.email || "").trim(),
+        phone: (d.personal?.phone || "").trim(),
+        location: (d.personal?.location || "").trim(),
+      },
+      summary: (d.summary || "").trim(),
+      skills,
+      education: Array.isArray(d.education)
+        ? d.education
+            .map((edu) => ({
+              institution: (edu.institution || "").trim(),
+              degree: (edu.degree || "").trim(),
+              field_of_study: (edu.field_of_study || "").trim(),
+              start_date: (edu.start_date || "").trim(),
+              end_date: (edu.end_date || "").trim(),
+            }))
+            .filter((edu) => edu.institution !== "")
+        : [],
+      experience: Array.isArray(d.experience)
+        ? d.experience
+            .map((exp) => ({
+              company: (exp.company || "").trim(),
+              position: (exp.position || "").trim(),
+              location: (exp.location || "").trim(),
+              start_date: (exp.start_date || "").trim(),
+              end_date: (exp.end_date || "").trim(),
+              description: (exp.description || "").trim(),
+            }))
+            .filter((exp) => exp.company !== "" && exp.position !== "")
+        : [],
+      projects: Array.isArray(d.projects)
+        ? d.projects
+            .map((proj) => ({
+              name: (proj.name || "").trim(),
+              description: (proj.description || "").trim(),
+              url: this.normalizeUrl(proj.url || ""),
+            }))
+            .filter((proj) => proj.name !== "")
+        : [],
+      certifications: Array.isArray(d.certifications)
+        ? d.certifications.map((c) => (c || "").trim()).filter(Boolean)
+        : [],
+      achievements: Array.isArray(d.achievements)
+        ? d.achievements.map((a) => (a || "").trim()).filter(Boolean)
+        : [],
+      languages: Array.isArray(d.languages)
+        ? d.languages.map((l) => (l || "").trim()).filter(Boolean)
+        : [],
+      links,
+      metadata: {
+        pageCount: d.metadata?.pageCount || 1,
+        wordCount: d.metadata?.wordCount || 0,
+      },
+    };
+  }
+
+  /**
+   * Retrieves the structured_data column for a specific resume, validating ownership.
+   */
+  async getStructuredResume(resumeId: string): Promise<ResumeStructuredData> {
+    if (!resumeId) {
+      throw new Error("Resume ID is required.");
+    }
+    try {
+      const data = await resumeRepository.getStructuredResume(resumeId);
+      return this.ensureSchemaConformance(data as unknown as Partial<ResumeStructuredData>);
+    } catch (error) {
+      throw new Error(this.normalizeError(error));
+    }
+  }
+
+  /**
+   * Updates only the structured_data column for a specific resume, validating ownership.
+   */
+  async updateStructuredResume(
+    resumeId: string,
+    structuredData: ResumeStructuredData
+  ): Promise<ResumeRow> {
+    if (!resumeId) {
+      throw new Error("Resume ID is required.");
+    }
+    
+    // Normalize and validate structured data
+    const normalized = this.ensureSchemaConformance(structuredData);
+
+    // Business validation rules
+    if (!normalized.personal.name) {
+      throw new Error("Personal Info: Name is required.");
+    }
+    if (!normalized.personal.email) {
+      throw new Error("Personal Info: Email is required.");
+    }
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    if (!emailRegex.test(normalized.personal.email)) {
+      throw new Error("Personal Info: Please enter a valid email address.");
+    }
+
+    try {
+      // Update DB record
+      return await resumeRepository.updateStructuredResume(
+        resumeId,
+        normalized as unknown as Record<string, unknown>
+      );
     } catch (error) {
       throw new Error(this.normalizeError(error));
     }

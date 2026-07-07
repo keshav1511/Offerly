@@ -1,4 +1,5 @@
 import React from "react";
+import Link from "next/link";
 import { FileText, Trash2, Edit2, Star, Calendar, RefreshCw } from "lucide-react";
 import { ResumeRow } from "../resume.types";
 import { Card } from "@/components/Card";
@@ -151,6 +152,15 @@ export function ResumeCard({
             >
               <span>Parse</span>
             </Button>
+          )}
+
+          {resume.parsing_status === "Completed" && (
+            <Link
+              href={`/resumes/${resume.id}`}
+              className="h-7 px-2.5 border border-zinc-200 dark:border-zinc-800 hover:border-zinc-400 dark:hover:border-zinc-700 bg-white dark:bg-zinc-950 rounded flex items-center justify-center shrink-0 font-mono text-[9px] uppercase tracking-wider font-semibold text-zinc-700 dark:text-zinc-300 transition-colors"
+            >
+              Edit
+            </Link>
           )}
 
           {!resume.is_default && onSetDefault && (
