@@ -15,4 +15,4 @@ Offerly is an AI-powered career copilot that helps job seekers discover the righ
 
 ---
 
-**Status:** 🚧 Under Development
+**Status:** 🚀 v0.3.0 Release Ready (Sprint 3 Completed & Verified)

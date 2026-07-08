@@ -233,16 +233,16 @@ Offerly implements a PostgreSQL relational layout. Row-Level Security (RLS) is a
   Sprint 0: Scaffolding & System Docs (Current)
   └── Setup project folders, standards, configuration files, and documentation layers.
   
-  Sprint 1: Core Framework & User Profiles
+  Sprint 1: Core Framework & User Profiles (Completed)
   └── Setup DB schemas, auth middleware, user models, and basic frontend registration layouts.
   
-  Sprint 2: Resume Parser & Storage
+  Sprint 2: Resume Parser & Storage (Completed)
   └── Implement document ingestion, JSON Schema parsers, and AWS S3/Supabase Storage integrations.
   
-  Sprint 3: AI Provider Adapters & Prompt Loading
+  Sprint 3: AI Provider Adapters & Prompt Loading (Completed)
   └── Integrate Gemini/Claude adapters and implement dynamic prompt compilation utilities.
   
-  Sprint 4: Resume Optimization Engine
+  Sprint 4: Resume Optimization Engine (Next)
   └── Implement ATS-aligned resume tailoring services and backend PDF rendering systems.
   
   Sprint 5: Job Boards & Search Aggregators
