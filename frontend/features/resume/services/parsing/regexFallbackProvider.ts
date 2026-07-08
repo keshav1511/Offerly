@@ -82,32 +82,9 @@ export class RegexFallbackProvider implements ResumeParsingProvider {
       },
       summary: lines.slice(0, 5).join(" ").substring(0, 200) + "...",
       skills,
-      education: [
-        {
-          institution: "University / College",
-          degree: "Degree",
-          field_of_study: "Major",
-          start_date: "",
-          end_date: ""
-        }
-      ],
-      experience: [
-        {
-          company: "Company Name",
-          position: "Role Name",
-          location: "",
-          start_date: "",
-          end_date: "",
-          description: "Parsed experience content placeholder"
-        }
-      ],
-      projects: [
-        {
-          name: "Project Details",
-          description: "Resume project detail summary",
-          url: ""
-        }
-      ],
+      education: [],
+      experience: [],
+      projects: [],
       certifications: [],
       achievements: [],
       languages: [],

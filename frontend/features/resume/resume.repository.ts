@@ -349,5 +349,58 @@ export class ResumeRepository {
 
     return data;
   }
+
+  /**
+   * Creates a new tailored resume version.
+   */
+  async createTailoredResume(
+    originalResumeId: string,
+    versionName: string,
+    structuredData: Record<string, unknown>,
+    jobSnapshot: Record<string, unknown>,
+    tailoringMetadata: Record<string, unknown>,
+    atsScore: number
+  ): Promise<ResumeRow> {
+    const userId = await this.getCurrentUserId();
+
+    // Fetch original resume details to duplicate parsing text and file info
+    const { data: original, error: originalError } = await this.client
+      .from("resumes")
+      .select("parsed_text, file_name, file_path, file_size, file_type")
+      .eq("id", originalResumeId)
+      .eq("user_id", userId)
+      .is("deleted_at", null)
+      .single();
+
+    if (originalError || !original) {
+      throw new Error(`Original resume not found: ${originalError?.message || "Not Found"}`);
+    }
+
+    const { data, error } = await this.client
+      .from("resumes")
+      .insert({
+        user_id: userId,
+        version_name: versionName,
+        parsed_text: original.parsed_text,
+        structured_data: structuredData as Json,
+        file_path: original.file_path,
+        file_name: original.file_name,
+        file_type: original.file_type,
+        file_size: original.file_size,
+        ats_score: atsScore,
+        is_default: false,
+        parsing_status: "Completed",
+        job_snapshot: jobSnapshot as Json,
+        tailoring_metadata: tailoringMetadata as Json,
+      })
+      .select()
+      .single();
+
+    if (error) {
+      throw new Error(`Failed to create tailored resume version: ${error.message}`);
+    }
+
+    return data;
+  }
 }
 export const resumeRepository = new ResumeRepository();

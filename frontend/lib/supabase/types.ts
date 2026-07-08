@@ -1,4 +1,4 @@
-﻿export type Json =
+export type Json =
   | string
   | number
   | boolean
@@ -7,6 +7,11 @@
   | Json[]
 
 export type Database = {
+  // Allows to automatically instantiate createClient with right options
+  // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
+  __InternalSupabase: {
+    PostgrestVersion: "14.5"
+  }
   graphql_public: {
     Tables: {
       [_ in never]: never
@@ -591,12 +596,14 @@ export type Database = {
           file_type: string
           id: string
           is_default: boolean
+          job_snapshot: Json | null
           parsed_at: string | null
           parsed_text: string
           parser_version: string | null
           parsing_error: string | null
           parsing_status: string
           structured_data: Json
+          tailoring_metadata: Json | null
           updated_at: string
           user_id: string
           version_name: string
@@ -612,12 +619,14 @@ export type Database = {
           file_type: string
           id?: string
           is_default?: boolean
+          job_snapshot?: Json | null
           parsed_at?: string | null
           parsed_text: string
           parser_version?: string | null
           parsing_error?: string | null
           parsing_status?: string
           structured_data?: Json
+          tailoring_metadata?: Json | null
           updated_at?: string
           user_id: string
           version_name?: string
@@ -633,12 +642,14 @@ export type Database = {
           file_type?: string
           id?: string
           is_default?: boolean
+          job_snapshot?: Json | null
           parsed_at?: string | null
           parsed_text?: string
           parser_version?: string | null
           parsing_error?: string | null
           parsing_status?: string
           structured_data?: Json
+          tailoring_metadata?: Json | null
           updated_at?: string
           user_id?: string
           version_name?: string
@@ -904,4 +915,3 @@ export const Constants = {
     },
   },
 } as const
-

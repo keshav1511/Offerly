@@ -17,8 +17,44 @@ export class ResumeParsingService {
   }
 
   /**
+   * Helper to sanitize parsed string values, stripping out generic placeholders.
+   */
+  private sanitizeString(str: string | null | undefined): string {
+    if (!str) return "";
+    const s = str.trim();
+    const placeholders = [
+      "university / college",
+      "university/college",
+      "university / college name",
+      "university/college name",
+      "degree",
+      "degree (e.g. b.s., m.s.)",
+      "major",
+      "major / field",
+      "company name",
+      "job title",
+      "role name",
+      "parsed experience content placeholder",
+      "responsibilities and achievements bullet points",
+      "project details",
+      "project name",
+      "project details description",
+      "resume project detail summary",
+      "not specified",
+      "none",
+      "null",
+      "n/a",
+      "na"
+    ];
+    if (placeholders.includes(s.toLowerCase())) {
+      return "";
+    }
+    return s;
+  }
+
+  /**
    * Helper to ensure the structured_data conforms exactly to the required JSON schema
-   * and never omits any key.
+   * and never omits any key or contains placeholder values.
    */
   private ensureSchemaConformance(
     data: Partial<ResumeStructuredData> | null | undefined,
@@ -27,46 +63,60 @@ export class ResumeParsingService {
     const d = data || {};
     return {
       personal: {
-        name: d.personal?.name || "",
-        email: d.personal?.email || "",
-        phone: d.personal?.phone || "",
-        location: d.personal?.location || "",
+        name: this.sanitizeString(d.personal?.name),
+        email: this.sanitizeString(d.personal?.email),
+        phone: this.sanitizeString(d.personal?.phone),
+        location: this.sanitizeString(d.personal?.location),
       },
-      summary: d.summary || "",
-      skills: Array.isArray(d.skills) ? d.skills : [],
+      summary: this.sanitizeString(d.summary),
+      skills: Array.isArray(d.skills) 
+        ? d.skills.map(s => this.sanitizeString(s)).filter(Boolean) 
+        : [],
       education: Array.isArray(d.education)
-        ? d.education.map((edu) => ({
-            institution: edu.institution || "",
-            degree: edu.degree || "",
-            field_of_study: edu.field_of_study || "",
-            start_date: edu.start_date || "",
-            end_date: edu.end_date || "",
-          }))
+        ? d.education
+            .map((edu) => ({
+              institution: this.sanitizeString(edu.institution),
+              degree: this.sanitizeString(edu.degree),
+              field_of_study: this.sanitizeString(edu.field_of_study),
+              start_date: this.sanitizeString(edu.start_date),
+              end_date: this.sanitizeString(edu.end_date),
+            }))
+            .filter((edu) => edu.institution !== "")
         : [],
       experience: Array.isArray(d.experience)
-        ? d.experience.map((exp) => ({
-            company: exp.company || "",
-            position: exp.position || "",
-            location: exp.location || "",
-            start_date: exp.start_date || "",
-            end_date: exp.end_date || "",
-            description: exp.description || "",
-          }))
+        ? d.experience
+            .map((exp) => ({
+              company: this.sanitizeString(exp.company),
+              position: this.sanitizeString(exp.position),
+              location: this.sanitizeString(exp.location),
+              start_date: this.sanitizeString(exp.start_date),
+              end_date: this.sanitizeString(exp.end_date),
+              description: this.sanitizeString(exp.description),
+            }))
+            .filter((exp) => exp.company !== "" || exp.position !== "")
         : [],
       projects: Array.isArray(d.projects)
-        ? d.projects.map((proj) => ({
-            name: proj.name || "",
-            description: proj.description || "",
-            url: proj.url || "",
-          }))
+        ? d.projects
+            .map((proj) => ({
+              name: this.sanitizeString(proj.name),
+              description: this.sanitizeString(proj.description),
+              url: this.sanitizeString(proj.url),
+            }))
+            .filter((proj) => proj.name !== "")
         : [],
-      certifications: Array.isArray(d.certifications) ? d.certifications : [],
-      achievements: Array.isArray(d.achievements) ? d.achievements : [],
-      languages: Array.isArray(d.languages) ? d.languages : [],
+      certifications: Array.isArray(d.certifications)
+        ? d.certifications.map(c => this.sanitizeString(c)).filter(Boolean)
+        : [],
+      achievements: Array.isArray(d.achievements)
+        ? d.achievements.map(a => this.sanitizeString(a)).filter(Boolean)
+        : [],
+      languages: Array.isArray(d.languages)
+        ? d.languages.map(l => this.sanitizeString(l)).filter(Boolean)
+        : [],
       links: {
-        github: d.links?.github || "",
-        linkedin: d.links?.linkedin || "",
-        portfolio: d.links?.portfolio || "",
+        github: this.sanitizeString(d.links?.github),
+        linkedin: this.sanitizeString(d.links?.linkedin),
+        portfolio: this.sanitizeString(d.links?.portfolio),
       },
       metadata: {
         pageCount: d.metadata?.pageCount || 1,
@@ -153,17 +203,42 @@ export class ResumeParsingService {
       // Normalize Text
       const normalizedText = normalizeText(rawText);
 
-      // 6. Select Parsing Provider
+      // 6. Structured JSON Extraction with fallbacks
       const isGeminiAvailable = !!process.env.GEMINI_API_KEY;
-      const provider = isGeminiAvailable ? this.geminiProvider : this.regexProvider;
-      const parser_version = `${provider.name}-v1`;
+      let rawStructured: Partial<ResumeStructuredData> = {};
+      let providerName = "";
 
-      console.log(`[ResumeParsingService] Selecting parsing provider: ${provider.name} for Resume ID: ${resumeId}`);
+      if (isGeminiAvailable) {
+        try {
+          console.log(`[ResumeParsingService] Attempting Gemini parse for Resume ID: ${resumeId}`);
+          rawStructured = await this.geminiProvider.parse(normalizedText);
+          providerName = "Gemini";
+        } catch (geminiError: unknown) {
+          const errMsg = geminiError instanceof Error ? geminiError.message : String(geminiError);
+          console.warn(`[ResumeParsingService] Gemini parse failed: ${errMsg}. Falling back to Regex.`);
+          rawStructured = await this.regexProvider.parse(normalizedText);
+          providerName = "RegexFallback";
+        }
+      } else {
+        console.log(`[ResumeParsingService] Gemini API key not configured. Using Regex fallback.`);
+        rawStructured = await this.regexProvider.parse(normalizedText);
+        providerName = "RegexFallback";
+      }
 
-      // 7. Structured JSON Extraction
-      const rawStructured = await provider.parse(normalizedText);
+      const parser_version = `${providerName}-v1`;
       const wordCount = normalizedText.split(/\s+/).filter(Boolean).length;
+      
+      // Clean and normalize the structured data, removing any possible placeholder values
       const structured_data = this.ensureSchemaConformance(rawStructured, wordCount);
+
+      // 7. Temporary QA Logging
+      console.log("[QA Log] Raw extracted PDF text:\n", normalizedText);
+      if (providerName === "Gemini") {
+        console.log("[QA Log] Gemini JSON response:\n", JSON.stringify(rawStructured, null, 2));
+      } else {
+        console.log("[QA Log] Regex fallback JSON:\n", JSON.stringify(rawStructured, null, 2));
+      }
+      console.log("[QA Log] Final structured_data before database insert:\n", JSON.stringify(structured_data, null, 2));
 
       // 8. Persist results using Repository
       const updatedResume = await repo.updateResume(resumeId, {
@@ -177,7 +252,7 @@ export class ResumeParsingService {
 
       const duration = Date.now() - startTime;
       console.log(
-        `[ResumeParsingService] Parsing completed. Resume ID: ${resumeId}, Duration: ${duration}ms, Provider: ${provider.name}`
+        `[ResumeParsingService] Parsing completed. Resume ID: ${resumeId}, Duration: ${duration}ms, Provider: ${providerName}`
       );
 
       return updatedResume;

@@ -155,12 +155,20 @@ export function ResumeCard({
           )}
 
           {resume.parsing_status === "Completed" && (
-            <Link
-              href={`/resumes/${resume.id}`}
-              className="h-7 px-2.5 border border-zinc-200 dark:border-zinc-800 hover:border-zinc-400 dark:hover:border-zinc-700 bg-white dark:bg-zinc-950 rounded flex items-center justify-center shrink-0 font-mono text-[9px] uppercase tracking-wider font-semibold text-zinc-700 dark:text-zinc-300 transition-colors"
-            >
-              Edit
-            </Link>
+            <>
+              <Link
+                href={`/resumes/${resume.id}`}
+                className="h-7 px-2.5 border border-zinc-200 dark:border-zinc-800 hover:border-zinc-400 dark:hover:border-zinc-700 bg-white dark:bg-zinc-950 rounded flex items-center justify-center shrink-0 font-mono text-[9px] uppercase tracking-wider font-semibold text-zinc-700 dark:text-zinc-300 transition-colors"
+              >
+                Edit
+              </Link>
+              <Link
+                href={`/resumes/${resume.id}/tailor`}
+                className="h-7 px-2.5 border border-zinc-200 dark:border-zinc-800 hover:border-zinc-400 dark:hover:border-zinc-700 bg-zinc-900 text-white dark:bg-zinc-50 dark:text-zinc-950 rounded flex items-center justify-center shrink-0 font-mono text-[9px] uppercase tracking-wider font-semibold hover:bg-zinc-800 dark:hover:bg-zinc-200 transition-colors"
+              >
+                Tailor
+              </Link>
+            </>
           )}
 
           {!resume.is_default && onSetDefault && (
