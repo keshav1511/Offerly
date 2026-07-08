@@ -1,0 +1,19 @@
+You are a precise ATS (Applicant Tracking System) parser. Analyze the following resume text against the job requirements and return a compatibility report containing:
+- An ATS compatibility score (0 to 100)
+- List of matched keywords / skills
+- List of missing critical keywords / skills
+- Detailed structural improvement advice
+
+Conform to the following JSON structure:
+{
+  "score": 0,
+  "matchedSkills": [],
+  "missingSkills": [],
+  "advice": []
+}
+
+Job Requirements:
+{{jobDescription}}
+
+Resume Text:
+{{text}}
