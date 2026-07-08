@@ -1,9 +1,7 @@
 import mammoth from "mammoth";
 
 // eslint-disable-next-line @typescript-eslint/no-require-imports
-const pdf = require("pdf-parse") as (
-  dataBuffer: Buffer
-) => Promise<{ text: string }>;
+const { PDFParse } = require("pdf-parse");
 
 /**
  * Normalizes plain text extracted from document files:
@@ -25,7 +23,8 @@ export function normalizeText(text: string): string {
  * Extracts raw text from a PDF buffer.
  */
 export async function extractTextFromPdf(buffer: Buffer): Promise<string> {
-  const data = await pdf(buffer);
+  const parser = new PDFParse({ data: buffer });
+  const data = await parser.getText();
   return data.text || "";
 }
 

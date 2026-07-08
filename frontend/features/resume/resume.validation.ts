@@ -1,5 +1,4 @@
 import { z } from 'zod';
-import { ResumeStructuredData } from './types/parsing.types';
 
 export const uploadResumeSchema = z.object({
   version_name: z

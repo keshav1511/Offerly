@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { ResumeRow } from "../resume.types";
 import { useResumes } from "../hooks/useResumes";
 import { ResumeCard } from "./ResumeCard";
@@ -25,7 +25,12 @@ export function ResumeList({
   isActionLoading,
 }: ResumeListProps) {
   const [page, setPage] = useState<number>(1);
+  const [mounted, setMounted] = useState(false);
   const pageSize = 4; // Display 4 resumes per page (compact grid layout)
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // Construct filters payload
   const filters = {
@@ -40,7 +45,7 @@ export function ResumeList({
 
   return (
     <div className="space-y-6">
-      {isLoading ? (
+      {!mounted || isLoading ? (
         <ResumeSkeleton />
       ) : isError ? (
         <div className="border border-red-200/60 dark:border-red-950/30 rounded-lg p-6 text-center bg-red-50/20 dark:bg-red-950/10">

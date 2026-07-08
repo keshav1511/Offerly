@@ -1,6 +1,6 @@
 import { SupabaseClient } from '@supabase/supabase-js';
 import { supabase as defaultClient } from '@/lib/supabase/client';
-import { Database } from '@/lib/supabase/types';
+import { Database, Json } from '@/lib/supabase/types';
 import { ResumeRow, ResumeFilters } from './resume.types';
 import { ALLOWED_FILE_TYPES, MAX_FILE_SIZE_BYTES } from './resume.validation';
 
@@ -335,7 +335,7 @@ export class ResumeRepository {
     const { data, error } = await this.client
       .from("resumes")
       .update({
-        structured_data: structuredData,
+        structured_data: structuredData as Json,
       })
       .eq("id", resumeId)
       .eq("user_id", userId)
