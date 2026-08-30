@@ -113,10 +113,39 @@ export class ResumeParsingService {
       languages: Array.isArray(d.languages)
         ? d.languages.map(l => this.sanitizeString(l)).filter(Boolean)
         : [],
+      volunteer: Array.isArray(d.volunteer)
+        ? d.volunteer
+            .map((vol) => ({
+              company: this.sanitizeString(vol.company),
+              position: this.sanitizeString(vol.position),
+              location: this.sanitizeString(vol.location),
+              start_date: this.sanitizeString(vol.start_date),
+              end_date: this.sanitizeString(vol.end_date),
+              description: this.sanitizeString(vol.description),
+            }))
+            .filter((vol) => vol.company !== "" || vol.position !== "")
+        : [],
+      leadership: Array.isArray(d.leadership)
+        ? d.leadership
+            .map((lead) => ({
+              company: this.sanitizeString(lead.company),
+              position: this.sanitizeString(lead.position),
+              location: this.sanitizeString(lead.location),
+              start_date: this.sanitizeString(lead.start_date),
+              end_date: this.sanitizeString(lead.end_date),
+              description: this.sanitizeString(lead.description),
+            }))
+            .filter((lead) => lead.company !== "" || lead.position !== "")
+        : [],
       links: {
         github: this.sanitizeString(d.links?.github),
         linkedin: this.sanitizeString(d.links?.linkedin),
         portfolio: this.sanitizeString(d.links?.portfolio),
+        leetcode: this.sanitizeString(d.links?.leetcode),
+        codeforces: this.sanitizeString(d.links?.codeforces),
+        kaggle: this.sanitizeString(d.links?.kaggle),
+        behance: this.sanitizeString(d.links?.behance),
+        dribbble: this.sanitizeString(d.links?.dribbble),
       },
       metadata: {
         pageCount: d.metadata?.pageCount || 1,

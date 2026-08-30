@@ -8,7 +8,6 @@ import { useRouter } from "next/navigation";
 import { Container } from "@/components/Container";
 import { Button } from "@/components/Button";
 import { ThemeToggle } from "@/components/ThemeToggle";
-import { useToast } from "@/providers/ToastProvider";
 
 /**
  * Authentication & Onboarding Shared Layout
@@ -20,11 +19,10 @@ import { useToast } from "@/providers/ToastProvider";
  * - Vertical Offset: Shifts card ~80-100px higher for premium UX placement.
  */
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
-  const { toast } = useToast();
   const router = useRouter();
 
   const handleSignIn = () => {
-    toast("Opening credentials authentication panel...", "info", 4000);
+    router.push("/onboarding/email");
   };
 
   return (

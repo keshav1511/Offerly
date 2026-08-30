@@ -58,10 +58,14 @@ export class TailoringService {
   }
 
   /**
-   * Extracts structured job requirements from a target URL.
+   * Extracts structured job requirements from a target URL or raw pasted description.
    */
-  async extractJobDetails(url: string): Promise<JobDetails> {
-    const rawText = await this.fetchUrlText(url);
+  async extractJobDetails(url?: string, text?: string): Promise<JobDetails> {
+    if (!url && !text) {
+      throw new Error("Either Job URL or Job Description Text must be provided.");
+    }
+
+    const rawText = url ? await this.fetchUrlText(url) : (text || "");
     const provider = this.getProvider();
 
     const prompt = PromptCompiler.compile("job-extraction", {
@@ -73,7 +77,17 @@ export class TailoringService {
       "jobTitle": "string",
       "description": "string",
       "location": "string",
-      "employmentType": "string"
+      "employmentType": "string",
+      "requirements": ["string"],
+      "responsibilities": ["string"],
+      "requiredSkills": ["string"],
+      "preferredSkills": ["string"],
+      "experienceYearsRequired": "string",
+      "educationRequired": "string",
+      "techStack": ["string"],
+      "seniority": "string",
+      "keywords": ["string"],
+      "salary": "string"
     }`;
 
     try {
@@ -84,6 +98,16 @@ export class TailoringService {
         description: result.description || rawText.substring(0, 1000),
         location: result.location || "Not Specified",
         employmentType: result.employmentType || "Not Specified",
+        requirements: result.requirements || [],
+        responsibilities: result.responsibilities || [],
+        requiredSkills: result.requiredSkills || [],
+        preferredSkills: result.preferredSkills || [],
+        experienceYearsRequired: result.experienceYearsRequired || "Not Specified",
+        educationRequired: result.educationRequired || "Not Specified",
+        techStack: result.techStack || [],
+        seniority: result.seniority || "Not Specified",
+        keywords: result.keywords || [],
+        salary: result.salary || "Not Specified",
       };
     } catch (error) {
       throw new Error(`Job details extraction failed: ${error instanceof Error ? error.message : String(error)}`);
@@ -117,13 +141,48 @@ export class TailoringService {
       "experienceMatch": 0,
       "educationMatch": 0,
       "formattingConfidence": 0,
+      "projectsMatch": 0,
+      "responsibilityMatch": 0,
       "matchingKeywords": [],
       "missingKeywords": [],
-      "advice": []
+      "advice": [],
+      "eligibilityDetails": {
+        "readiness": 0,
+        "eligibility": "string",
+        "competition": "string",
+        "reasoning": "string"
+      },
+      "recommendation": {
+        "decision": "string",
+        "reason": "string"
+      }
     }`;
 
     try {
-      return await provider.parseStructuredData<ATSAnalysisReport>(prompt, schemaStr);
+      const result = await provider.parseStructuredData<ATSAnalysisReport>(prompt, schemaStr);
+      return {
+        overallScore: result.overallScore || 0,
+        keywordScore: result.keywordScore || 0,
+        skillsMatch: result.skillsMatch || 0,
+        experienceMatch: result.experienceMatch || 0,
+        educationMatch: result.educationMatch || 0,
+        formattingConfidence: result.formattingConfidence || 0,
+        projectsMatch: result.projectsMatch || 0,
+        responsibilityMatch: result.responsibilityMatch || 0,
+        matchingKeywords: result.matchingKeywords || [],
+        missingKeywords: result.missingKeywords || [],
+        advice: result.advice || [],
+        eligibilityDetails: result.eligibilityDetails || {
+          readiness: result.experienceMatch || 0,
+          eligibility: "Medium",
+          competition: "High",
+          reasoning: "Not Specified"
+        },
+        recommendation: result.recommendation || {
+          decision: "tailoring_recommended",
+          reason: "Not Specified"
+        }
+      };
     } catch (error) {
       throw new Error(`ATS analysis calculation failed: ${error instanceof Error ? error.message : String(error)}`);
     }
@@ -152,7 +211,9 @@ export class TailoringService {
       "certifications": ["string"],
       "achievements": ["string"],
       "languages": ["string"],
-      "links": { "github": "string", "linkedin": "string", "portfolio": "string" },
+      "volunteer": [{ "company": "string", "position": "string", "location": "string", "start_date": "string", "end_date": "string", "description": "string" }],
+      "leadership": [{ "company": "string", "position": "string", "location": "string", "start_date": "string", "end_date": "string", "description": "string" }],
+      "links": { "github": "string", "linkedin": "string", "portfolio": "string", "leetcode": "string", "codeforces": "string", "kaggle": "string", "behance": "string", "dribbble": "string" },
       "metadata": { "pageCount": 1, "wordCount": 0 }
     }`;
 
@@ -173,7 +234,8 @@ export class TailoringService {
         "addedKeywords": ["string"],
         "missingKeywords": ["string"],
         "aiConfidence": 0,
-        "warnings": ["string"]
+        "warnings": ["string"],
+        "bulletSuggestions": [{ "originalBullet": "string", "tailoredBullet": "string", "reason": "string", "requirement": "string", "confidence": 0 }]
       }
     }`;
 
@@ -194,15 +256,28 @@ export class TailoringService {
     tailoredData: ResumeStructuredData,
     jobSnapshot: JobDetails,
     explanation: Record<string, unknown>,
-    atsScore: number
+    atsScore: number,
+    atsReport?: Record<string, unknown>
   ): Promise<ResumeRow> {
     const repo = new ResumeRepository(client);
+    const tailoringMetadata = {
+      explanation,
+      atsReport: atsReport || null,
+      generatedAt: new Date().toISOString(),
+      modelVersion: "claude-3-5-sonnet-20241022",
+      jobMetadata: {
+        companyName: jobSnapshot.companyName,
+        jobTitle: jobSnapshot.jobTitle,
+        location: jobSnapshot.location,
+        employmentType: jobSnapshot.employmentType,
+      }
+    };
     return await repo.createTailoredResume(
       originalResumeId,
       versionName,
       tailoredData as unknown as Record<string, unknown>,
       jobSnapshot as unknown as Record<string, unknown>,
-      explanation as Record<string, unknown>,
+      tailoringMetadata as unknown as Record<string, unknown>,
       atsScore
     );
   }

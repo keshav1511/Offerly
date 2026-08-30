@@ -28,6 +28,7 @@ export function EmailVerificationScreen({ onBack, onContinue }: EmailVerificatio
   const [email, setEmail] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [isSending, setIsSending] = useState(false);
+  const [isSent, setIsSent] = useState(false);
 
   const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -65,10 +66,8 @@ export function EmailVerificationScreen({ onBack, onContinue }: EmailVerificatio
         setError(errorDetail);
         toast(`Authentication error: ${authError.message}`, "error", 5000);
       } else {
-        toast(`Verification code generated and sent to: ${email}`, "success", 4000);
-        if (onContinue) {
-          onContinue(email);
-        }
+        toast(`Verification link sent to: ${email}`, "success", 4000);
+        setIsSent(true);
       }
     } catch (err: unknown) {
       const errorDetail = diagnoseSupabaseError(err);
@@ -85,6 +84,61 @@ export function EmailVerificationScreen({ onBack, onContinue }: EmailVerificatio
       setError(null);
     }
   };
+
+  if (isSent) {
+    return (
+      <AuthPageTransition>
+        <div className="space-y-8">
+          {/* Visual Stepper */}
+          <OnboardingProgress currentStep={1} />
+
+          <AuthCard>
+            <div className="space-y-6">
+              <div className="flex flex-col items-center justify-center text-center space-y-4 pt-2">
+                <div className="w-12 h-12 rounded-full border border-border flex items-center justify-center bg-accent/5 shadow-sm text-accent animate-pulse">
+                  <Mail className="w-6 h-6" />
+                </div>
+                
+                <h1 className="text-xl md:text-2xl font-mono uppercase tracking-wider font-extrabold select-none">
+                  Verification link sent
+                </h1>
+                
+                <p className="text-xs text-foreground/80 leading-relaxed font-sans max-w-sm">
+                  We&apos;ve sent a verification link to <span className="font-semibold text-zinc-950 dark:text-zinc-50">{email}</span>. Please check your inbox and click the link to verify your account.
+                </p>
+
+                <p className="text-[10px] text-muted-foreground leading-relaxed font-mono uppercase max-w-xs pt-1">
+                  Didn&apos;t receive it? Check your spam folder or try again.
+                </p>
+              </div>
+
+              {/* CTAs */}
+              <div className="flex flex-col gap-3 pt-4 border-t border-border/60">
+                <AuthButton
+                  type="button"
+                  variant="outline"
+                  onClick={() => setIsSent(false)}
+                  className="w-full text-xs font-mono uppercase tracking-wider"
+                >
+                  ← Try Another Email
+                </AuthButton>
+
+                {onContinue && (
+                  <button
+                    type="button"
+                    onClick={() => onContinue(email)}
+                    className="text-[9px] text-muted-foreground hover:text-foreground font-mono uppercase tracking-widest mt-2 transition-colors cursor-pointer text-center underline underline-offset-4 decoration-border/60"
+                  >
+                    Enter verification code manually
+                  </button>
+                )}
+              </div>
+            </div>
+          </AuthCard>
+        </div>
+      </AuthPageTransition>
+    );
+  }
 
   return (
     <AuthPageTransition>

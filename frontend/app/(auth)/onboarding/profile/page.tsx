@@ -36,7 +36,7 @@ export default function OnboardingProfilePage() {
             subtitle="Define your target role preferences and experience limits."
           />
 
-          <div className="border border-border/80 p-8 text-center space-y-4 bg-background/50">
+          <div className="border border-border/80 p-5 sm:p-8 text-center space-y-4 bg-background/50">
             <div className="mx-auto h-12 w-12 rounded-none bg-primary/5 flex items-center justify-center border border-border">
               <User className="h-5 w-5 text-muted-foreground" />
             </div>

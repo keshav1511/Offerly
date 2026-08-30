@@ -182,6 +182,11 @@ export class ResumeService {
       github: this.normalizeUrl(d.links?.github || ""),
       linkedin: this.normalizeUrl(d.links?.linkedin || ""),
       portfolio: this.normalizeUrl(d.links?.portfolio || ""),
+      leetcode: this.normalizeUrl(d.links?.leetcode || ""),
+      codeforces: this.normalizeUrl(d.links?.codeforces || ""),
+      kaggle: this.normalizeUrl(d.links?.kaggle || ""),
+      behance: this.normalizeUrl(d.links?.behance || ""),
+      dribbble: this.normalizeUrl(d.links?.dribbble || ""),
     };
 
     // Filter duplicate skills case-insensitively
@@ -248,6 +253,30 @@ export class ResumeService {
         : [],
       languages: Array.isArray(d.languages)
         ? d.languages.map((l) => (l || "").trim()).filter(Boolean)
+        : [],
+      volunteer: Array.isArray(d.volunteer)
+        ? d.volunteer
+            .map((vol) => ({
+              company: (vol.company || "").trim(),
+              position: (vol.position || "").trim(),
+              location: (vol.location || "").trim(),
+              start_date: (vol.start_date || "").trim(),
+              end_date: (vol.end_date || "").trim(),
+              description: (vol.description || "").trim(),
+            }))
+            .filter((vol) => vol.company !== "" || vol.position !== "")
+        : [],
+      leadership: Array.isArray(d.leadership)
+        ? d.leadership
+            .map((lead) => ({
+              company: (lead.company || "").trim(),
+              position: (lead.position || "").trim(),
+              location: (lead.location || "").trim(),
+              start_date: (lead.start_date || "").trim(),
+              end_date: (lead.end_date || "").trim(),
+              description: (lead.description || "").trim(),
+            }))
+            .filter((lead) => lead.company !== "" || lead.position !== "")
         : [],
       links,
       metadata: {

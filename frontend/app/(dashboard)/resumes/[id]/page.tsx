@@ -103,14 +103,14 @@ export default function ResumeEditorPage() {
     return (
       <div className="space-y-6 max-w-5xl py-8 animate-pulse font-sans">
         <div className="h-8 w-64 bg-zinc-200 dark:bg-zinc-800 rounded mb-4" />
-        <div className="h-4 w-96 bg-zinc-100 dark:bg-zinc-900 rounded mb-8" />
+        <div className="h-4 w-full max-w-md bg-zinc-100 dark:bg-zinc-900 rounded mb-8" />
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
           <div className="space-y-3 col-span-1">
             {Array.from({ length: 6 }).map((_, i) => (
               <div key={i} className="h-10 bg-zinc-100 dark:bg-zinc-900 rounded" />
             ))}
           </div>
-          <div className="col-span-3 h-96 bg-zinc-50 dark:bg-zinc-900/50 rounded-lg border border-zinc-200 dark:border-zinc-800" />
+          <div className="col-span-1 md:col-span-3 h-96 bg-zinc-50 dark:bg-zinc-900/50 rounded-lg border border-zinc-200 dark:border-zinc-800" />
         </div>
       </div>
     );
@@ -118,7 +118,7 @@ export default function ResumeEditorPage() {
 
   if (!resume || !structuredData) {
     return (
-      <div className="p-8 text-center border border-zinc-200 dark:border-zinc-800 rounded-lg max-w-xl mx-auto mt-20 bg-white dark:bg-zinc-950 font-sans">
+      <div className="p-5 sm:p-8 text-center border border-zinc-200 dark:border-zinc-800 rounded-lg max-w-xl mx-auto mt-20 bg-white dark:bg-zinc-950 font-sans">
         <AlertTriangle className="w-10 h-10 text-rose-500 mx-auto mb-4" />
         <h3 className="text-sm font-mono uppercase tracking-wider font-bold text-zinc-900 dark:text-zinc-50">
           Resume Not Found

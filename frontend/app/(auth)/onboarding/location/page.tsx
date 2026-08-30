@@ -37,7 +37,7 @@ export default function OnboardingLocationPage() {
             subtitle="Select your work styles (Remote, On-site, or Hybrid layouts)."
           />
 
-          <div className="border border-border/80 p-8 text-center space-y-4 bg-background/50">
+          <div className="border border-border/80 p-5 sm:p-8 text-center space-y-4 bg-background/50">
             <div className="mx-auto h-12 w-12 rounded-none bg-primary/5 flex items-center justify-center border border-border">
               <MapPin className="h-5 w-5 text-muted-foreground" />
             </div>

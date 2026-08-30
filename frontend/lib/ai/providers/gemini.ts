@@ -16,7 +16,7 @@ export class GeminiProvider implements BaseLLMProvider {
   }
 
   async generateText(prompt: string, systemInstruction?: string): Promise<string> {
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${this.apiKey}`;
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=${this.apiKey}`;
     
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const bodyPayload: any = {
@@ -89,7 +89,7 @@ export class GeminiProvider implements BaseLLMProvider {
   }
 
   async parseStructuredData<T>(text: string, schemaString: string): Promise<T> {
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${this.apiKey}`;
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=${this.apiKey}`;
     
     const prompt = `Parse the following text and return a structured JSON object conforming to the schema below. Do NOT wrap the JSON in markdown code blocks. Return raw JSON text only.
     

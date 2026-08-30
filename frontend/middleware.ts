@@ -39,18 +39,52 @@ export async function middleware(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  // Define dashboard/protected route matches
-  const isDashboardRoute = 
-    request.nextUrl.pathname.startsWith("/resumes") ||
-    request.nextUrl.pathname.startsWith("/jobs") ||
-    request.nextUrl.pathname.startsWith("/companies") ||
-    request.nextUrl.pathname.startsWith("/settings");
+  const pathname = request.nextUrl.pathname;
 
-  // If a dashboard route is requested and no user is authenticated, redirect to email login
-  if (isDashboardRoute && !user) {
+  const isProtectedRoute = 
+    pathname.startsWith("/dashboard") ||
+    pathname.startsWith("/resumes") ||
+    pathname.startsWith("/jobs") ||
+    pathname.startsWith("/companies") ||
+    pathname.startsWith("/settings");
+
+  const isOnboardingRoute = pathname.startsWith("/onboarding") && 
+    !pathname.startsWith("/onboarding/email") && 
+    !pathname.startsWith("/onboarding/otp");
+
+  // If a protected route or onboarding route is requested and no user is authenticated, redirect to email login
+  if ((isProtectedRoute || isOnboardingRoute) && !user) {
     const redirectUrl = request.nextUrl.clone();
     redirectUrl.pathname = "/onboarding/email";
     return NextResponse.redirect(redirectUrl);
+  }
+
+  // Onboarding Gating checks
+  if (user && (isProtectedRoute || isOnboardingRoute)) {
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("onboarding_completed, onboarding_step")
+      .eq("id", user.id)
+      .maybeSingle();
+
+    const onboardingCompleted = profile?.onboarding_completed ?? false;
+    const onboardingStep = profile?.onboarding_step ?? "resume";
+
+    if (!onboardingCompleted) {
+      // If onboarding is incomplete, prevent accessing protected application routes
+      if (isProtectedRoute) {
+        const redirectUrl = request.nextUrl.clone();
+        redirectUrl.pathname = `/onboarding/${onboardingStep}`;
+        return NextResponse.redirect(redirectUrl);
+      }
+    } else {
+      // If onboarding is complete, prevent accessing onboarding flow steps (except login/otp)
+      if (isOnboardingRoute) {
+        const redirectUrl = request.nextUrl.clone();
+        redirectUrl.pathname = "/dashboard";
+        return NextResponse.redirect(redirectUrl);
+      }
+    }
   }
 
   return supabaseResponse;

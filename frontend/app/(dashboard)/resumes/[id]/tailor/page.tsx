@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { 
@@ -17,13 +17,16 @@ import {
   ShieldAlert,
   Save,
   BrainCircuit,
-  Wand2
+  Wand2,
+  BarChart3,
+  Download
 } from "lucide-react";
 import { PageHeader } from "@/components/PageHeader";
 import { Button } from "@/components/Button";
 import { Card, CardContent } from "@/components/Card";
 import { useToast } from "@/providers/ToastProvider";
 import { useResume, useStructuredResume } from "@/features/resume/hooks/useResumes";
+import { ResumeRow } from "@/features/resume/resume.types";
 import { 
   useExtractJob, 
   useATSAnalysis, 
@@ -64,8 +67,64 @@ export default function TailorPage() {
   const [atsReport, setAtsReport] = useState<ATSAnalysisReport | null>(null);
   const [tailoredResult, setTailoredResult] = useState<TailoredResumeResponse | null>(null);
   
-  // Save Settings
   const [customVersionName, setCustomVersionName] = useState("");
+  const [savedResume, setSavedResume] = useState<ResumeRow | null>(null);
+
+  const [bulletDecisions, setBulletDecisions] = useState<{
+    original: string;
+    current: string;
+    reason: string;
+    requirement: string;
+    confidence: number;
+    status: 'accepted' | 'rejected';
+  }[]>([]);
+
+  useEffect(() => {
+    if (tailoredResult?.explanation?.bulletSuggestions) {
+      const suggestions = tailoredResult.explanation.bulletSuggestions.map(s => ({
+        original: s.originalBullet,
+        current: s.tailoredBullet,
+        reason: s.reason,
+        requirement: s.requirement,
+        confidence: s.confidence,
+        status: 'accepted' as const,
+      }));
+      setBulletDecisions(suggestions);
+    } else {
+      setBulletDecisions([]);
+    }
+  }, [tailoredResult]);
+
+  const getCompiledStructuredData = () => {
+    if (!tailoredResult) return null;
+    const data = JSON.parse(JSON.stringify(tailoredResult.tailoredData));
+    
+    bulletDecisions.forEach(decision => {
+      if (decision.status === 'rejected') {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        data.experience.forEach((exp: any) => {
+          if (exp.description.includes(decision.current)) {
+            exp.description = exp.description.replace(decision.current, decision.original);
+          }
+        });
+      } else if (decision.status === 'accepted' && decision.current !== decision.original) {
+        const defaultTailoredText = tailoredResult.explanation.bulletSuggestions?.find(
+          s => s.originalBullet === decision.original
+        )?.tailoredBullet;
+        
+        if (defaultTailoredText) {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          data.experience.forEach((exp: any) => {
+            if (exp.description.includes(defaultTailoredText)) {
+              exp.description = exp.description.replace(defaultTailoredText, decision.current);
+            }
+          });
+        }
+      }
+    });
+
+    return data;
+  };
 
   // Step 1: Process URL Extraction or Direct Text Ingest
   const handleIngest = async () => {
@@ -148,21 +207,62 @@ export default function TailorPage() {
     }
 
     try {
-      toast("Saving tailored resume version...", "info", 2000);
-      await saveResumeMutation.mutateAsync({
+      const result = await saveResumeMutation.mutateAsync({
         versionName: customVersionName.trim(),
-        tailoredData: tailoredResult.tailoredData,
+        tailoredData: getCompiledStructuredData() || tailoredResult.tailoredData,
         jobSnapshot,
         explanation: tailoredResult.explanation as unknown as Record<string, unknown>,
         atsScore: atsReport.overallScore,
+        atsReport: atsReport as unknown as Record<string, unknown>,
       });
+      setSavedResume(result);
       toast("Tailored resume version saved successfully!", "success");
-      router.push("/resumes");
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : String(err);
       toast(`Failed to save resume: ${msg}`, "error");
     }
   };
+
+  if (savedResume) {
+    return (
+      <div className="space-y-6 max-w-2xl mx-auto py-12 text-center font-sans">
+        <div className="mx-auto w-16 h-16 bg-emerald-50 dark:bg-emerald-950/20 text-emerald-600 dark:text-emerald-400 rounded-full flex items-center justify-center mb-6">
+          <CheckCircle2 className="w-8 h-8" />
+        </div>
+        <h2 className="text-2xl font-semibold text-zinc-900 dark:text-zinc-50 tracking-tight">Tailored Resume Saved!</h2>
+        <p className="text-sm text-zinc-500 max-w-md mx-auto leading-relaxed">
+          Version <span className="font-mono text-zinc-900 dark:text-zinc-100 font-semibold">&ldquo;{savedResume.version_name}&rdquo;</span> has been created successfully as a new immutable resume history node.
+        </p>
+
+        <div className="grid grid-cols-1 gap-3 max-w-sm mx-auto pt-8">
+          <Button
+            onClick={() => router.push(`/ats/${savedResume.id}`)}
+            className="w-full bg-zinc-900 hover:bg-zinc-800 text-white dark:bg-zinc-50 dark:hover:bg-zinc-200 dark:text-zinc-950 py-2.5 rounded text-xs font-mono tracking-wider uppercase font-semibold flex items-center justify-center gap-2"
+          >
+            <BarChart3 className="w-4 h-4" />
+            <span>View ATS Report</span>
+          </Button>
+
+          <Button
+            disabled
+            variant="outline"
+            className="w-full border border-zinc-200 dark:border-zinc-800 text-zinc-400 dark:text-zinc-650 py-2.5 rounded text-xs font-mono tracking-wider uppercase font-semibold flex items-center justify-center gap-2 cursor-not-allowed"
+          >
+            <Download className="w-4 h-4" />
+            <span>Download Resume (Future Module)</span>
+          </Button>
+
+          <Button
+            onClick={() => router.push("/resumes")}
+            variant="outline"
+            className="w-full border border-zinc-200 dark:border-zinc-800 text-zinc-700 dark:text-zinc-300 py-2.5 rounded text-xs font-mono tracking-wider uppercase font-semibold flex items-center justify-center gap-2"
+          >
+            <span>Continue to Library</span>
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
   if (isResumeLoading || !resume) {
     return (
@@ -357,7 +457,7 @@ export default function TailorPage() {
             </Card>
 
             {/* Match Breakdown Columns */}
-            <Card className="col-span-2 border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 p-6 space-y-5">
+            <Card className="col-span-1 md:col-span-2 border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 p-6 space-y-5">
               <h3 className="text-xs font-mono uppercase tracking-wider font-bold text-zinc-900 dark:text-zinc-50 flex items-center gap-2">
                 <TrendingUp className="w-4 h-4 text-zinc-400" />
                 Score Categories Breakdown
@@ -480,7 +580,7 @@ export default function TailorPage() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             
             {/* Diff Preview Pane */}
-            <div className="col-span-2 space-y-4">
+            <div className="col-span-1 md:col-span-2 space-y-4">
               <h3 className="text-xs font-mono uppercase tracking-wider font-bold text-zinc-900 dark:text-zinc-50 flex items-center gap-2">
                 <FileText className="w-4 h-4 text-zinc-400" />
                 Resume Tailoring Diff Preview
@@ -537,33 +637,123 @@ export default function TailorPage() {
                   </div>
                 </div>
 
-                {/* Work experience diff block */}
-                <div className="space-y-3">
-                  <h4 className="text-[10px] font-mono uppercase tracking-wider text-zinc-400">Experience Re-wording</h4>
-                  <div className="space-y-4">
-                    {tailoredResult.tailoredData.experience.map((exp, idx) => {
-                      const origExp = originalStructured?.experience[idx];
-                      return (
-                        <div key={idx} className="space-y-2 border-b border-zinc-100 dark:border-zinc-900/50 pb-4 last:border-0 last:pb-0">
-                          <p className="text-xs font-semibold text-zinc-800 dark:text-zinc-300 font-mono">
-                            {exp.position} at {exp.company}
-                          </p>
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div className="p-2.5 bg-zinc-50 dark:bg-zinc-900/30 rounded border border-zinc-200/40 dark:border-zinc-800/20">
-                              <p className="text-xs text-zinc-400 font-sans whitespace-pre-wrap leading-relaxed">
-                                {origExp?.description || "No description provided."}
-                              </p>
+                {/* Interactive Bullet Suggestions Panel */}
+                <div className="space-y-4">
+                  <h4 className="text-[10px] font-mono uppercase tracking-wider text-zinc-400">Interactive AI Bullet Ingestion Studio</h4>
+                  
+                  {bulletDecisions && bulletDecisions.length > 0 ? (
+                    <div className="space-y-4">
+                      {bulletDecisions.map((decision, idx) => (
+                        <div 
+                          key={idx} 
+                          className={`p-4 border rounded-lg space-y-3 transition-colors ${
+                            decision.status === 'rejected'
+                              ? "border-rose-200/40 bg-rose-50/5 dark:border-rose-900/10 dark:bg-rose-950/5"
+                              : "border-zinc-200 dark:border-zinc-800 bg-secondary/10"
+                          }`}
+                        >
+                          <div className="flex flex-wrap justify-between items-center gap-2">
+                            <span className="px-2 py-0.5 text-[8px] font-mono font-bold bg-accent/15 text-accent uppercase tracking-wider rounded">
+                              Target JD: {decision.requirement || "General Optimization"}
+                            </span>
+                            <span className="font-mono text-[9px] text-zinc-400">
+                              Confidence: {decision.confidence}%
+                            </span>
+                          </div>
+
+                          <div className="space-y-2 text-left">
+                            {/* Original bullet */}
+                            <div className="text-[11px] font-sans text-zinc-400 line-through leading-relaxed">
+                              &ldquo;{decision.original}&rdquo;
                             </div>
-                            <div className="p-2.5 bg-zinc-50 dark:bg-zinc-900/30 rounded border border-zinc-200/40 dark:border-zinc-800/20">
-                              <p className="text-xs text-zinc-700 dark:text-zinc-200 font-sans whitespace-pre-wrap leading-relaxed">
-                                {exp.description}
-                              </p>
-                            </div>
+                            
+                            {/* Tailored / Edited bullet */}
+                            {decision.status === 'accepted' ? (
+                              <textarea
+                                rows={2}
+                                value={decision.current}
+                                onChange={(e) => {
+                                  const list = [...bulletDecisions];
+                                  list[idx].current = e.target.value;
+                                  setBulletDecisions(list);
+                                }}
+                                className="w-full px-3 py-1.5 border border-zinc-200 dark:border-zinc-850 rounded bg-white dark:bg-zinc-900 text-xs font-sans text-zinc-800 dark:text-zinc-200 focus:outline-none focus:border-accent animate-in fade-in"
+                              />
+                            ) : (
+                              <div className="text-xs font-sans text-zinc-500 italic uppercase">
+                                Bullet suggestion rejected (using original CV text)
+                              </div>
+                            )}
+                          </div>
+
+                          {/* Explanation reason */}
+                          <div className="text-[9px] font-mono text-zinc-400 uppercase italic">
+                            Why: {decision.reason}
+                          </div>
+
+                          {/* Action toggle buttons */}
+                          <div className="flex gap-2 justify-end pt-1">
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const list = [...bulletDecisions];
+                                list[idx].status = 'rejected';
+                                setBulletDecisions(list);
+                              }}
+                              className={`font-mono text-[9px] uppercase px-3 py-1.5 border cursor-pointer ${
+                                decision.status === 'rejected' 
+                                  ? "border-rose-500 text-rose-500 bg-rose-50/10" 
+                                  : "border-zinc-200 dark:border-zinc-800 text-zinc-500 hover:bg-zinc-50 dark:hover:bg-zinc-900"
+                              }`}
+                            >
+                              Reject Suggestion
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const list = [...bulletDecisions];
+                                list[idx].status = 'accepted';
+                                setBulletDecisions(list);
+                              }}
+                              className={`font-mono text-[9px] uppercase px-3 py-1.5 border cursor-pointer ${
+                                decision.status === 'accepted' 
+                                  ? "bg-zinc-900 text-white border-zinc-900 dark:bg-zinc-50 dark:text-zinc-950 dark:border-zinc-50" 
+                                  : "border-zinc-200 dark:border-zinc-800 text-zinc-500 hover:bg-zinc-50 dark:hover:bg-zinc-900"
+                              }`}
+                            >
+                              Accept Suggestion
+                            </button>
                           </div>
                         </div>
-                      );
-                    })}
-                  </div>
+                      ))}
+                    </div>
+                  ) : (
+                    /* Fallback to simple experience block if no suggestions are returned */
+                    <div className="space-y-4">
+                      {tailoredResult.tailoredData.experience.map((exp, idx) => {
+                        const origExp = originalStructured?.experience[idx];
+                        return (
+                          <div key={idx} className="space-y-2 border-b border-zinc-100 dark:border-zinc-900/50 pb-4 last:border-0 last:pb-0">
+                            <p className="text-xs font-semibold text-zinc-800 dark:text-zinc-300 font-mono">
+                              {exp.position} at {exp.company}
+                            </p>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                              <div className="p-2.5 bg-zinc-50 dark:bg-zinc-900/30 rounded border border-zinc-200/40 dark:border-zinc-800/20">
+                                <p className="text-xs text-zinc-400 font-sans whitespace-pre-wrap leading-relaxed">
+                                  {origExp?.description || "No description provided."}
+                                </p>
+                              </div>
+                              <div className="p-2.5 bg-zinc-50 dark:bg-zinc-900/30 rounded border border-zinc-200/40 dark:border-zinc-800/20">
+                                <p className="text-xs text-zinc-700 dark:text-zinc-200 font-sans whitespace-pre-wrap leading-relaxed">
+                                  {exp.description}
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
                 </div>
               </Card>
             </div>

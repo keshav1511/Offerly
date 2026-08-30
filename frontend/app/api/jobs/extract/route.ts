@@ -17,17 +17,16 @@ export async function POST(request: Request) {
 
     // 2. Parse body parameters
     const body = await request.json().catch(() => ({}));
-    const { url } = body;
+    const { url, text } = body;
 
-    if (!url) {
+    if (!url && !text) {
       return NextResponse.json(
-        { error: "Job URL is required." },
+        { error: "Either Job URL or Job Description Text is required." },
         { status: 400 }
       );
     }
 
-    // Validate URL syntax roughly
-    if (!url.startsWith("http://") && !url.startsWith("https://")) {
+    if (url && !url.startsWith("http://") && !url.startsWith("https://")) {
       return NextResponse.json(
         { error: "Invalid URL protocol. URL must start with http:// or https://" },
         { status: 400 }
@@ -35,7 +34,7 @@ export async function POST(request: Request) {
     }
 
     // 3. Delegate to TailoringService
-    const details = await tailoringService.extractJobDetails(url);
+    const details = await tailoringService.extractJobDetails(url, text);
 
     return NextResponse.json(details);
   } catch (error: unknown) {

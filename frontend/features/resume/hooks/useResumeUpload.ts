@@ -61,6 +61,8 @@ export function useResumeUpload() {
       resumeService.parseResume(newResume.id, false).catch((err) => {
         console.error("[useResumeUpload] Auto-parsing background task failed:", err);
       });
+
+      return newResume;
     } catch (err) {
       // Ensure we don't overwrite user cancellation with an error status
       if (err instanceof Error && err.message.includes("aborted")) {

@@ -78,6 +78,7 @@ export function useSaveTailoredResume(resumeId: string) {
       jobSnapshot: JobDetails;
       explanation: Record<string, unknown>;
       atsScore: number;
+      atsReport?: Record<string, unknown>;
     }
   >({
     mutationFn: async (payload) => {

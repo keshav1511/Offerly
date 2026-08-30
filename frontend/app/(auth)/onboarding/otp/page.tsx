@@ -20,8 +20,8 @@ function OtpContent() {
   };
 
   const handleContinue = () => {
-    // Redirects user to the profile setup step
-    router.push("/onboarding/profile");
+    // Redirects user to the resume upload onboarding step
+    router.push("/onboarding/resume");
   };
 
   return (

@@ -8,9 +8,19 @@ JSON Schema:
 {
   "companyName": "Company Name",
   "jobTitle": "Job Title / Role Name",
-  "description": "Normalized job description text / requirements",
+  "description": "Normalized job description text",
   "location": "Location / City / Remote / Hybrid details",
-  "employmentType": "Full-time / Part-time / Contract / Intern"
+  "employmentType": "Full-time / Part-time / Contract / Intern",
+  "requirements": ["Requirement 1", "Requirement 2"],
+  "responsibilities": ["Responsibility 1", "Responsibility 2"],
+  "requiredSkills": ["Skill 1", "Skill 2"],
+  "preferredSkills": ["Skill A", "Skill B"],
+  "experienceYearsRequired": "e.g. 5+ years, or 'Not Specified'",
+  "educationRequired": "e.g. Bachelor's in CS, or 'Not Specified'",
+  "techStack": ["React", "PostgreSQL"],
+  "seniority": "Junior / Mid / Senior / Lead / Principal",
+  "keywords": ["Keyword 1", "Keyword 2"],
+  "salary": "Salary range if available, or 'Not Specified'"
 }
 
 Raw Text Content:

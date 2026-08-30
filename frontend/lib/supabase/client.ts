@@ -18,3 +18,7 @@ if (!supabaseUrl || !supabaseAnonKey) {
  * Uses a single browser-side client instance.
  */
 export const supabase = createBrowserClient(supabaseUrl, supabaseAnonKey);
+
+if (typeof window !== 'undefined') {
+  (window as typeof globalThis & { supabaseClient?: typeof supabase }).supabaseClient = supabase;
+}

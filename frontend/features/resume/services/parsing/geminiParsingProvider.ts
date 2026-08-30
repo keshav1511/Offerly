@@ -9,7 +9,7 @@ export class GeminiParsingProvider implements ResumeParsingProvider {
       throw new Error("GEMINI_API_KEY is not configured.");
     }
 
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=${apiKey}`;
 
     const prompt = `You are an expert AI resume parser. Your task is to extract structured information from the plain text resume provided.
 
@@ -58,10 +58,35 @@ JSON Schema:
   "certifications": ["Certification Name"],
   "achievements": ["Achievement description"],
   "languages": ["Language Name"],
+  "volunteer": [
+    {
+      "company": "Organization Name",
+      "position": "Volunteer Role",
+      "location": "Location",
+      "start_date": "Start Date",
+      "end_date": "End Date",
+      "description": "Volunteer duties and accomplishments"
+    }
+  ],
+  "leadership": [
+    {
+      "company": "Organization/Group Name",
+      "position": "Leadership Title",
+      "location": "Location",
+      "start_date": "Start Date",
+      "end_date": "End Date",
+      "description": "Leadership responsibilities and achievements"
+    }
+  ],
   "links": {
     "github": "GitHub profile URL",
     "linkedin": "LinkedIn profile URL",
-    "portfolio": "Portfolio or Personal Website URL"
+    "portfolio": "Portfolio or Personal Website URL",
+    "leetcode": "LeetCode profile URL",
+    "codeforces": "Codeforces profile URL",
+    "kaggle": "Kaggle profile URL",
+    "behance": "Behance portfolio URL",
+    "dribbble": "Dribbble profile URL"
   }
 }
 

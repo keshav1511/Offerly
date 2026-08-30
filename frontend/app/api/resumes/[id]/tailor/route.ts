@@ -28,7 +28,7 @@ export async function POST(
 
     // 2. Parse body parameters
     const body = await request.json().catch(() => ({}));
-    const { action = "generate", jobDescription, versionName, tailoredData, jobSnapshot, explanation, atsScore } = body;
+    const { action = "generate", jobDescription, versionName, tailoredData, jobSnapshot, explanation, atsScore, atsReport } = body;
 
     // Action 1: Generate Tailored Details (AI completion)
     if (action === "generate") {
@@ -71,7 +71,8 @@ export async function POST(
         tailoredData,
         jobSnapshot,
         explanation || {},
-        Number(atsScore) || 0
+        Number(atsScore) || 0,
+        atsReport || undefined
       );
 
       return NextResponse.json(newResume);

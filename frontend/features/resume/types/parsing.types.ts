@@ -32,11 +32,26 @@ export interface ResumeLinks {
   github: string;
   linkedin: string;
   portfolio: string;
+  leetcode?: string;
+  codeforces?: string;
+  kaggle?: string;
+  behance?: string;
+  dribbble?: string;
 }
 
 export interface ResumeMetadata {
   pageCount: number;
   wordCount: number;
+}
+
+export interface CareerProfile {
+  career_stage?: string;
+  primary_domain?: string;
+  primary_tech_stack?: string[];
+  leadership_level?: string;
+  strength_areas?: string[];
+  growth_areas?: string[];
+  experience_summary?: string;
 }
 
 export interface ResumeStructuredData {
@@ -49,8 +64,11 @@ export interface ResumeStructuredData {
   certifications: string[];
   achievements: string[];
   languages: string[];
+  volunteer?: ExperienceItem[];
+  leadership?: ExperienceItem[];
   links: ResumeLinks;
   metadata: ResumeMetadata;
+  career_profile?: CareerProfile;
 }
 
 export interface ResumeParsingProvider {

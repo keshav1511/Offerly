@@ -62,14 +62,48 @@ export const structuredResumeSchema = z.object({
   certifications: z.array(z.string().trim()),
   achievements: z.array(z.string().trim()),
   languages: z.array(z.string().trim()),
+  volunteer: z.array(
+    z.object({
+      company: z.string().trim(),
+      position: z.string().trim(),
+      location: z.string().trim(),
+      start_date: z.string().trim(),
+      end_date: z.string().trim(),
+      description: z.string().trim(),
+    })
+  ).optional(),
+  leadership: z.array(
+    z.object({
+      company: z.string().trim(),
+      position: z.string().trim(),
+      location: z.string().trim(),
+      start_date: z.string().trim(),
+      end_date: z.string().trim(),
+      description: z.string().trim(),
+    })
+  ).optional(),
   links: z.object({
     github: z.string().trim(),
     linkedin: z.string().trim(),
     portfolio: z.string().trim(),
+    leetcode: z.string().trim().optional(),
+    codeforces: z.string().trim().optional(),
+    kaggle: z.string().trim().optional(),
+    behance: z.string().trim().optional(),
+    dribbble: z.string().trim().optional(),
   }),
   metadata: z.object({
     pageCount: z.number(),
     wordCount: z.number(),
   }),
+  career_profile: z.object({
+    career_stage: z.string().trim().optional(),
+    primary_domain: z.string().trim().optional(),
+    primary_tech_stack: z.array(z.string().trim()).optional(),
+    leadership_level: z.string().trim().optional(),
+    strength_areas: z.array(z.string().trim()).optional(),
+    growth_areas: z.array(z.string().trim()).optional(),
+    experience_summary: z.string().trim().optional(),
+  }).optional(),
 });
 

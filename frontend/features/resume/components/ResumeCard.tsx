@@ -156,6 +156,17 @@ export function ResumeCard({
 
           {resume.parsing_status === "Completed" && (
             <>
+              {resume.tailoring_metadata &&
+                typeof resume.tailoring_metadata === "object" &&
+                (resume.tailoring_metadata as Record<string, unknown>).atsReport && (
+                  <Link
+                    href={`/ats/${resume.id}`}
+                    className="h-7 px-2.5 border border-zinc-200 dark:border-zinc-800 hover:border-zinc-400 dark:hover:border-zinc-700 bg-white dark:bg-zinc-950 rounded flex items-center justify-center shrink-0 font-mono text-[9px] uppercase tracking-wider font-semibold text-zinc-700 dark:text-zinc-300 transition-colors"
+                    title="View ATS Compatibility Report"
+                  >
+                    ATS Report
+                  </Link>
+                )}
               <Link
                 href={`/resumes/${resume.id}`}
                 className="h-7 px-2.5 border border-zinc-200 dark:border-zinc-800 hover:border-zinc-400 dark:hover:border-zinc-700 bg-white dark:bg-zinc-950 rounded flex items-center justify-center shrink-0 font-mono text-[9px] uppercase tracking-wider font-semibold text-zinc-700 dark:text-zinc-300 transition-colors"

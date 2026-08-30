@@ -1,7 +1,18 @@
 import mammoth from "mammoth";
+import { pathToFileURL } from "url";
 
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 const { PDFParse } = require("pdf-parse");
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const { getPath } = require("pdf-parse/worker");
+
+// Configure the worker path correctly as a file:// URL for ESM loader compatibility
+try {
+  const workerUrl = pathToFileURL(getPath()).href;
+  PDFParse.setWorker(workerUrl);
+} catch (err) {
+  console.error("Failed to set PDF worker path:", err);
+}
 
 /**
  * Normalizes plain text extracted from document files:

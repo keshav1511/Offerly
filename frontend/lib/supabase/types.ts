@@ -547,6 +547,9 @@ export type Database = {
           target_salary_max: number | null
           target_salary_min: number | null
           updated_at: string
+          structured_data: Json
+          onboarding_completed: boolean
+          onboarding_step: string
         }
         Insert: {
           avatar_url?: string | null
@@ -564,6 +567,9 @@ export type Database = {
           target_salary_max?: number | null
           target_salary_min?: number | null
           updated_at?: string
+          structured_data?: Json
+          onboarding_completed?: boolean
+          onboarding_step?: string
         }
         Update: {
           avatar_url?: string | null
@@ -581,6 +587,9 @@ export type Database = {
           target_salary_max?: number | null
           target_salary_min?: number | null
           updated_at?: string
+          structured_data?: Json
+          onboarding_completed?: boolean
+          onboarding_step?: string
         }
         Relationships: []
       }

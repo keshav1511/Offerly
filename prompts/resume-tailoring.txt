@@ -19,7 +19,16 @@ Explanation JSON Schema:
   "addedKeywords": ["List of keywords successfully integrated into the tailored resume"],
   "missingKeywords": ["List of keywords that could not be integrated because they would violate factual integrity"],
   "aiConfidence": 0,
-  "warnings": ["Any warnings regarding skill mismatches or limits of tailoring"]
+  "warnings": ["Any warnings regarding skill mismatches or limits of tailoring"],
+  "bulletSuggestions": [
+    {
+      "originalBullet": "The original bullet point text from experience/projects",
+      "tailoredBullet": "The suggested reworded bullet point text",
+      "reason": "Justification of why the change was made",
+      "requirement": "Target requirement or keyword from JD satisfied by this bullet",
+      "confidence": 95
+    }
+  ]
 }
 
 Target Job Description:
