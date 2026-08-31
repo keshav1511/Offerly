@@ -7,10 +7,11 @@ const compat = new FlatCompat({
 const eslintConfig = [
   {
     ignores: [
-      "lib/supabase/types.ts",
-      ".next/**/*",
-      "node_modules/**/*"
-    ]
+  "next-env.d.ts",
+  "lib/supabase/types.ts",
+  ".next/**/*",
+  "node_modules/**/*"
+  ]
   },
   ...compat.config({
     extends: ["next/core-web-vitals", "next/typescript"],
